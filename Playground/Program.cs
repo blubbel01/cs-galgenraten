@@ -9,7 +9,7 @@ namespace Playground
         static string theWord;
         static string displayWord;
         static List<string> checkedCharactesList = new List<string>();
-        private static int tries = 0;
+        static int tries = 0;
 
         static void Main(string[] args)
         {
