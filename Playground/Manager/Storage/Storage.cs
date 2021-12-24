@@ -38,7 +38,7 @@ namespace Playground.Manager.Storage
 
         public void AddItem(long itemId, long amount)
         {
-            ItemStack itemStack = GetItem(itemId, new Dictionary<string, string>());
+            ItemStack itemStack = GetItem(itemId);
             if (itemStack != null)
             {
                 itemStack.Amount += amount;
@@ -151,6 +151,21 @@ namespace Playground.Manager.Storage
                     }
 
                     existingItemStack = item;
+                }
+            }
+
+            return existingItemStack;
+        }
+
+        public ItemStack GetItem(long itemId)
+        {
+            ItemStack existingItemStack = null;
+            foreach (var item in this.Items)
+            {
+                if (item.ItemId == itemId && item.Metas.Count == 0)
+                {
+                    existingItemStack = item;
+                    break;
                 }
             }
 

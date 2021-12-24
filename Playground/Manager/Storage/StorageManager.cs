@@ -103,6 +103,81 @@ namespace Playground.Manager.Storage
 
             return storage;
         }
+
+        public static Storage CreateStorage(string type, long id, double maxSize)
+        {
+            string commandString = @"
+                INSERT INTO storages (
+                    max_size,
+                    types_id,
+                    reference_id
+                )
+                VALUES(@maxSize, @typeId, @referenceId);";
+            MySqlConnection con = DatabaseHandler.GetConnection();
+            MySqlCommand command = new MySqlCommand(commandString, con);
+            command.Parameters.AddWithValue("maxSize", maxSize);
+            command.Parameters.AddWithValue("typeId", GetStorageTypeId(type));
+            command.Parameters.AddWithValue("referenceId", id);
+            command.ExecuteNonQuery();
+            con.Close();
+            return new Storage(command.LastInsertedId, maxSize, id, type, new List<ItemStack>());
+        }
+
+        public static void DeleteStorage(string type, long id)
+        {
+            string commandString = @"
+                DELETE
+                FROM
+                    storages
+                WHERE
+                    storages.reference_id = @id
+                    AND
+                    storages.types_id  = @typeId;";
+            MySqlConnection con = DatabaseHandler.GetConnection();
+            MySqlCommand command = new MySqlCommand(commandString, con);
+            command.Parameters.AddWithValue("id", id);
+            command.Parameters.AddWithValue("typeId", GetStorageTypeId(type));
+            command.ExecuteNonQuery();
+            con.Close();
+        }
+        
+        public static void DeleteStorage(long id)
+        {
+            string commandString = @"
+                DELETE
+                FROM
+                    storages
+                WHERE
+                    storages.id = @id;";
+            MySqlConnection con = DatabaseHandler.GetConnection();
+            MySqlCommand command = new MySqlCommand(commandString, con);
+            command.Parameters.AddWithValue("id", id);
+            command.ExecuteNonQuery();
+            con.Close();
+        }
+
+        public static long GetStorageTypeId(string type)
+        {
+            string commandString = @"
+                SELECT
+                    storage_types.id
+                FROM
+                    storage_types
+                WHERE
+                    storage_types.name = @type;";
+            MySqlConnection con = DatabaseHandler.GetConnection();
+            MySqlCommand command = new MySqlCommand(commandString, con);
+            command.Parameters.AddWithValue("type", type);
+            MySqlDataReader reader = command.ExecuteReader();
+            long id = -1;
+            if (reader.Read())
+            {
+                id = (long) reader["id"];
+            }
+            reader.Close();
+            con.Close();
+            return id;
+        }
     }
 
 }

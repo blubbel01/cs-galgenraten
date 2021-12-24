@@ -27,14 +27,17 @@ namespace Playground.Manager.Storage
             MySqlCommand command = new MySqlCommand(commandString, con);
             command.Parameters.AddWithValue("id", id);
             MySqlDataReader reader = command.ExecuteReader();
-            reader.Read();
-            Item item = new Item(
-                (long) reader["id"],
-                (string) reader["name"],
-                (double) reader["weight"],
-                (bool) reader["legal"],
-                (string) reader["description"]
-            );
+            Item item = null;
+            if (reader.Read())
+            {
+                item = new Item(
+                    (long) reader["id"],
+                    (string) reader["name"],
+                    (double) reader["weight"],
+                    (bool) reader["legal"],
+                    (string) reader["description"]
+                );
+            }
             reader.Close();
             con.Close();
             return item;
