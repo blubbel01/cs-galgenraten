@@ -3,9 +3,7 @@ CREATE TABLE `items` (
                          `name` varchar(255) NOT NULL,
                          `weight` double NOT NULL,
                          `legal` tinyint(1) NOT NULL,
-                         `description` text NOT NULL,
-                         `script_type` varchar(255) NOT NULL,
-                         `script_value` varchar(255) NOT NULL
+                         `description` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `item_metas` (
