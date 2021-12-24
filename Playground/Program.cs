@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using Playground.Manager;
+using Playground.Manager.Storage;
 
 namespace Playground
 {
@@ -10,12 +10,15 @@ namespace Playground
         static void Main(string[] args)
         {
             Storage testStorage = StorageManager.GetStorage("inventory", 0);
-            
-            testStorage.AddItem(1, 50000);
-            
+
             foreach (var item in testStorage.Items)
             {
-                Console.WriteLine($"{item.Amount}x {item.ItemId}");
+                string metas = "";
+                foreach (var keyValuePair in item.Metas)
+                {
+                    metas += $"{keyValuePair.Key} = {keyValuePair.Value.Value}, ";
+                }
+                Console.WriteLine($"{item.Amount}x {item.ItemId}: {metas}");
             }
         }
 
