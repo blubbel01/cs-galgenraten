@@ -7,7 +7,7 @@ namespace Playground
     {
         public static MySqlConnection GetConnection()
         {
-            MySqlConnection Connection = new MySqlConnection("server=127.0.0.1;uid=root;pwd=;database=vio");
+            MySqlConnection Connection = new MySqlConnection("server=127.0.0.1;uid=root;pwd=;database=test");
             try
             {
                 Connection.Open();
