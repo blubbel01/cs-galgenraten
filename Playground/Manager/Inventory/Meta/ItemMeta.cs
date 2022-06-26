@@ -9,19 +9,19 @@ namespace Playground.Manager.Inventory.Meta
         private string _displayName;
         private string _lore;
         private short _damage;
-        private List<ItemFlags> _flagsList;
-        private List<AttributeModifier> _attributeModifiers;
+        private HashSet<ItemFlags> _flagsList;
+        private Dictionary<ItemAttribute, double> _attributeModifiers;
 
         public ItemMeta()
         {
             _displayName = null;
             _lore = null;
             _damage = 0;
-            _flagsList = new List<ItemFlags>();
-            _attributeModifiers = new List<AttributeModifier>();
+            _flagsList = new HashSet<ItemFlags>();
+            _attributeModifiers = new Dictionary<ItemAttribute, double>();
         }
 
-        public ItemMeta(string displayName, string lore, short damage, List<ItemFlags> flagsList, List<AttributeModifier> attributeModifiers)
+        public ItemMeta(string displayName, string lore, short damage, HashSet<ItemFlags> flagsList, Dictionary<ItemAttribute, double> attributeModifiers)
         {
             _displayName = displayName;
             _lore = lore;
@@ -30,9 +30,9 @@ namespace Playground.Manager.Inventory.Meta
             _attributeModifiers = attributeModifiers;
         }
 
-        public List<ItemFlags> FlagsList => _flagsList;
+        public HashSet<ItemFlags> FlagsList => _flagsList;
         
-        public List<AttributeModifier> AttributeModifiers => _attributeModifiers;
+        public Dictionary<ItemAttribute, double> AttributeModifiers => _attributeModifiers;
 
         public string DisplayName
         {
@@ -83,12 +83,24 @@ namespace Playground.Manager.Inventory.Meta
             
             if (Damage != other.Damage)
                 return false;
-
-            if (AttributeModifiers.Equals(other.AttributeModifiers))
-                return true;
             
-            if (FlagsList.Equals(other.FlagsList))
-                return true;
+            if (AttributeModifiers.Count != other.AttributeModifiers.Count)
+                return false;
+            
+            if (FlagsList.Count != other.FlagsList.Count)
+                return false;
+            
+            foreach (var (key, value) in AttributeModifiers)
+            {
+                if (other.AttributeModifiers[key] != value)
+                    return false;
+            }
+            
+            foreach (var itemFlags in FlagsList)
+            {
+                if (!other.FlagsList.Contains(itemFlags))
+                    return false;
+            }
             
             return true;
         }

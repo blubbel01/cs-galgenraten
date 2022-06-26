@@ -134,11 +134,7 @@ namespace Playground.Manager.Inventory
             return -1;
         }
 
-        public List<ItemStack> Items
-        {
-            get => _items;
-            set => _items = value;
-        }
+        public List<ItemStack> Items => _items;
 
         public double MaxWeight
         {

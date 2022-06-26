@@ -1,5 +1,7 @@
 ﻿using System;
 using Playground.Manager.Inventory;
+using Playground.Manager.Inventory.Meta;
+using Playground.Manager.Inventory.Meta.Attributes;
 
 namespace Playground
 {
@@ -18,13 +20,16 @@ namespace Playground
 
             ItemStack item = new ItemStack(Item.WEAPON_SMG, 1);
             item.Meta.Damage = 500;
+            item.Meta.AttributeModifiers[ItemAttribute.SSAJFG] = 15;
+            item.Meta.FlagsList.Add(ItemFlags.NO_TRADE);
+            item.Meta.FlagsList.Add(ItemFlags.NO_WEIGHT);
             inventory.AddItem(item);
             ItemStack item2 = new ItemStack(Item.WEAPON_SMG, 1);
             inventory.AddItem(item2);
             
-            InventoryWrapper.SaveInventory(2, inventory);
+            InventoryManager.SaveInventory(2, inventory);
             
-            Inventory inv = InventoryWrapper.GetInventory(2);
+            Inventory inv = InventoryManager.GetInventory(2);
 
             foreach (var itemStack in inv.Items)
             {
@@ -35,7 +40,7 @@ namespace Playground
                 s += "Attributes: [";
                 foreach (var attributeModifier in itemStack.Meta.AttributeModifiers)
                 {
-                    s += $"{attributeModifier.Attribute}:{attributeModifier.Value},";
+                    s += $"{attributeModifier.Key}:{attributeModifier.Value},";
                 }
                 s += "]";
                 Console.WriteLine(s);

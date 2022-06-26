@@ -7,7 +7,7 @@ using Playground.Manager.Inventory.Meta.Attributes;
 
 namespace Playground.Manager.Inventory
 {
-    public class InventoryWrapper
+    public class InventoryManager
     {
         public static Inventory GetInventory(long id)
         {
@@ -45,7 +45,7 @@ namespace Playground.Manager.Inventory
                 {
                     BitArray flagBits = new BitArray(new int[] { (int)reader["flags"] });
 
-                    List<ItemFlags> flagsList = new List<ItemFlags>();
+                    HashSet<ItemFlags> flagsList = new HashSet<ItemFlags>();
                     for (var i = 0; i < flagBits.Count; i++)
                     {
                         if (!flagBits[i]) continue;
@@ -62,13 +62,11 @@ namespace Playground.Manager.Inventory
                     attributeCommand.Parameters.AddWithValue("id", (long)reader["id"]);
                     MySqlDataReader attributeCommandReader = attributeCommand.ExecuteReader();
 
-                    List<AttributeModifier> attributeModifiers = new List<AttributeModifier>();
+                    Dictionary<ItemAttribute, double> attributeModifiers = new Dictionary<ItemAttribute, double>();
                 
                     while (attributeCommandReader.Read())
                     {
-                        attributeModifiers.Add(new AttributeModifier(
-                            (Meta.Attributes.Attribute) attributeCommandReader["attribute"],
-                            (double)attributeCommandReader["value"]));
+                        attributeModifiers[(ItemAttribute) attributeCommandReader["attribute"]] = (double)attributeCommandReader["value"];
                     }
                 
                     ItemMeta meta = new ItemMeta(displayName, lore, damage, flagsList, attributeModifiers);
@@ -86,9 +84,7 @@ namespace Playground.Manager.Inventory
             reader.Close();
             reader.Dispose();
 
-            inv.Items = items;
-
-            return inv;
+            return new Inventory(inv.Title, inv.MaxWeight, items);
         }
 
         public static void DeleteInventory(long id)
@@ -171,7 +167,7 @@ namespace Playground.Manager.Inventory
             
                         MySqlCommand attributeCommand = new MySqlCommand(attributeCommandString, con);
                         attributeCommand.Parameters.AddWithValue("itemMetaId", itemStackCommand.LastInsertedId);
-                        attributeCommand.Parameters.AddWithValue("attribute", (int)attributeModifier.Attribute);
+                        attributeCommand.Parameters.AddWithValue("attribute", (int)attributeModifier.Key);
                         attributeCommand.Parameters.AddWithValue("value", attributeModifier.Value);
                         attributeCommand.ExecuteNonQuery();
                         attributeCommand.Dispose();
