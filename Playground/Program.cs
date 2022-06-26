@@ -14,13 +14,23 @@ namespace Playground
 
         static void Exampe()
         {
-            Inventory inv = InventoryWrapper.GetInventory(1);
+            Inventory inventory = new Inventory("TEST", 0);
+
+            ItemStack item = new ItemStack(Item.WEAPON_SMG, 1);
+            item.Meta.Damage = 500;
+            inventory.AddItem(item);
+            ItemStack item2 = new ItemStack(Item.WEAPON_SMG, 1);
+            inventory.AddItem(item2);
+            
+            InventoryWrapper.SaveInventory(2, inventory);
+            
+            Inventory inv = InventoryWrapper.GetInventory(2);
 
             foreach (var itemStack in inv.Items)
             {
                 string s = "";
-                s += $"Type: {itemStack.Type}, Name: {itemStack.Name}, Amount: {itemStack.Amount}, Type: {itemStack.Type}, ";
-                s += $"DisplayName: {itemStack.Meta.DisplayName}, Lore: {itemStack.Meta.Lore}, Damage: {itemStack.Meta.DisplayName}, ";
+                s += $"Type: {itemStack.Item}, Name: {itemStack.Name}, Amount: {itemStack.Amount}, Type: {itemStack.Item}, ";
+                s += $"DisplayName: {itemStack.Meta.DisplayName}, Lore: {itemStack.Meta.Lore}, Damage: {itemStack.Meta.Damage}, ";
                 
                 s += "Attributes: [";
                 foreach (var attributeModifier in itemStack.Meta.AttributeModifiers)

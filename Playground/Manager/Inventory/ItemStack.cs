@@ -5,42 +5,42 @@ namespace Playground.Manager.Inventory
 {
     public class ItemStack : ICloneable
     {
-        private Material _type = Material.NULL;
-        private int _amount = 0;
+        private Item _item = Manager.Inventory.Item.NULL;
+        private long _amount = 0;
         private ItemMeta _meta;
 
-        public ItemStack(Material type, int amount)
+        public ItemStack(Item item, long amount)
         {
-            _type = type;
+            _item = item;
             _amount = amount;
             _meta = new ItemMeta();
         }
 
-        public ItemStack(Material type, int amount, ItemMeta meta)
+        public ItemStack(Item item, long amount, ItemMeta meta)
         {
-            _type = type;
+            _item = item;
             _amount = amount;
             _meta = meta;
         }
 
         public bool IsSameType(ItemStack other)
         {
-            if (!_type.Equals(other.Type))
+            if (!_item.Equals(other.Item))
                 return false;
             if (!_meta.Equals(other._meta))
                 return false;
             return true;
         }
 
-        public Material Type => _type;
+        public Item Item => _item;
 
         public ItemMeta Meta => _meta;
 
-        public string Name => MaterialObject.GetItemData(_type).Name;
+        public string Name => MaterialObject.GetItemData(_item).Name;
 
-        public MaterialObject Data => MaterialObject.GetItemData(_type);
+        public MaterialObject Data => MaterialObject.GetItemData(_item);
 
-        public int Amount
+        public long Amount
         {
             get => _amount;
             set => _amount = value;
@@ -48,7 +48,7 @@ namespace Playground.Manager.Inventory
 
         public double MaterialWeight()
         {
-            return MaterialObject.GetItemData(_type).Weight;
+            return MaterialObject.GetItemData(_item).Weight;
         }
         
         public double Weight()
@@ -58,7 +58,7 @@ namespace Playground.Manager.Inventory
 
         public object Clone()
         {
-            return new ItemStack(_type, _amount, (ItemMeta) _meta.Clone());
+            return new ItemStack(_item, _amount, (ItemMeta) _meta.Clone());
         }
     }
 }

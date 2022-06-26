@@ -31,11 +31,16 @@ namespace Playground.Manager.Inventory
                 ItemStack curr = items[i];
                 
                 int index = _findItemStackIndex(curr);
-
-                double emptySpace = _maxWeight - CurrentWeight();
-                int transferAmount = (int)(Math.Round(curr.MaterialWeight() / emptySpace) > curr.Amount
+                
+                double emptySpace = MaxWeight - CurrentWeight();
+                long transferAmount = (long)(Math.Round(curr.MaterialWeight() / emptySpace) > curr.Amount
                     ? curr.Amount
                     : Math.Round(curr.MaterialWeight() / emptySpace));
+
+                if (MaxWeight == 0)
+                {
+                    transferAmount = curr.Amount;
+                }
 
                 ItemStack toAdd = (ItemStack)curr.Clone();
                 toAdd.Amount = transferAmount;
@@ -47,11 +52,11 @@ namespace Playground.Manager.Inventory
 
                 if (index == -1)
                 {
-                    _items.Add(toAdd);
+                    Items.Add(toAdd);
                 }
                 else
                 {
-                    _items[index].Amount += toAdd.Amount;
+                    Items[index].Amount += toAdd.Amount;
                 }
             }
 
@@ -73,14 +78,14 @@ namespace Playground.Manager.Inventory
                 }
                 else
                 {
-                    if (_items[index].Amount >= curr.Amount)
+                    if (Items[index].Amount >= curr.Amount)
                     {
-                        _items[index].Amount -= curr.Amount;
+                        Items[index].Amount -= curr.Amount;
                     }
                     else
                     {
-                        curr.Amount -= _items[index].Amount;
-                        _items[index].Amount = 0;
+                        curr.Amount -= Items[index].Amount;
+                        Items[index].Amount = 0;
                         remaining.Add(curr);
                     }
                 }
@@ -89,7 +94,7 @@ namespace Playground.Manager.Inventory
             return items;
         }
 
-        public int AddItem(ItemStack item)
+        public long AddItem(ItemStack item)
         {
             List<ItemStack> items = new List<ItemStack>();
             items.Add(item);

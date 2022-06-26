@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Playground.Manager.Inventory.Meta.Attributes;
-using Attribute = Playground.Manager.Inventory.Meta.Attributes.Attribute;
 
 namespace Playground.Manager.Inventory.Meta
 {
@@ -53,15 +52,44 @@ namespace Playground.Manager.Inventory.Meta
             set => _damage = value;
         }
 
+        public bool HasChanged()
+        {
+            if (DisplayName != null) return true;
+            if (Lore != null) return true;
+            if (Damage != 0) return true;
+            if (FlagsList.Count > 0) return true;
+            if (AttributeModifiers.Count > 0) return true;
+            return false;
+        }
+
 
         public bool Equals(ItemMeta other)
         {
             if (other == null)
                 return false;
-            if (!_displayName.Equals(other.DisplayName))
+            
+            if (DisplayName == null ^ other.DisplayName == null)
                 return false;
-            if (!_lore.Equals(other.Lore))
+            if (Lore == null ^ other.Lore == null)
                 return false;
+            
+            if (DisplayName != null)
+                if (!DisplayName.Equals(other.DisplayName))
+                    return false;
+            
+            if (Lore != null)
+                if (!Lore.Equals(other.Lore))
+                    return false;
+            
+            if (Damage != other.Damage)
+                return false;
+
+            if (AttributeModifiers.Equals(other.AttributeModifiers))
+                return true;
+            
+            if (FlagsList.Equals(other.FlagsList))
+                return true;
+            
             return true;
         }
 
