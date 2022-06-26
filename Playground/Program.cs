@@ -1,5 +1,5 @@
-﻿using Playground.Manager.Inventory;
-using Playground.Manager.Inventory.Meta;
+﻿using System;
+using Playground.Manager.Inventory;
 
 namespace Playground
 {
@@ -14,13 +14,22 @@ namespace Playground
 
         static void Exampe()
         {
-            Inventory inv = new Inventory("Spielerinventar: Shepard", 200);
+            Inventory inv = InventoryWrapper.GetInventory(1);
 
-            inv.AddItem(new ItemStack(Material.WEAPON_SMG, 1));
-            
-            inv.Items[0].Meta.FlagsList.Contains(ItemFlags.UNBREAKABLE);
-
-            InventoryWrapper.SaveInventory(1, inv);
+            foreach (var itemStack in inv.Items)
+            {
+                string s = "";
+                s += $"Type: {itemStack.Type}, Name: {itemStack.Name}, Amount: {itemStack.Amount}, Type: {itemStack.Type}, ";
+                s += $"DisplayName: {itemStack.Meta.DisplayName}, Lore: {itemStack.Meta.Lore}, Damage: {itemStack.Meta.DisplayName}, ";
+                
+                s += "Attributes: [";
+                foreach (var attributeModifier in itemStack.Meta.AttributeModifiers)
+                {
+                    s += $"{attributeModifier.Attribute}:{attributeModifier.Value},";
+                }
+                s += "]";
+                Console.WriteLine(s);
+            }
         }
 
     }

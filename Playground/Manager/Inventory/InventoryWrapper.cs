@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using MySql.Data.MySqlClient;
 using Playground.Manager.Inventory.Meta;
+using Playground.Manager.Inventory.Meta.Attributes;
 
 namespace Playground.Manager.Inventory
 {
@@ -14,12 +15,13 @@ namespace Playground.Manager.Inventory
             if (inv == null) return null;
 
             string commandString = @"SELECT 
+                itemstacks.id,
 	            itemstacks.type,
                 itemstacks.amount,
                 itemmetas.displayName,
                 itemmetas.lore,
                 itemmetas.flags,
-                itemmetas.damage,
+                itemmetas.damage
             FROM inventories
             INNER JOIN itemstacks ON itemstacks.inventory_id  = inventories.id
             INNER JOIN itemmetas ON itemmetas.itemstack_id  = itemstacks.id
@@ -47,7 +49,26 @@ namespace Playground.Manager.Inventory
                     flagsList.Add((ItemFlags) i);
                 }
                 
-                ItemMeta meta = new ItemMeta(displayName, lore, damage, flagsList);
+                string attributeCommandString = @"
+                    SELECT * FROM attributemodifiers
+                    WHERE attributemodifiers.itemmeta_id = @id;";
+
+                
+                MySqlConnection con2 = DatabaseHandler.GetConnection();
+                MySqlCommand attributeCommand = new MySqlCommand(attributeCommandString, con2);
+                attributeCommand.Parameters.AddWithValue("id", (int)reader["id"]);
+                MySqlDataReader attributeCommandReader = attributeCommand.ExecuteReader();
+
+                List<AttributeModifier> attributeModifiers = new List<AttributeModifier>();
+                
+                while (attributeCommandReader.Read())
+                {
+                    attributeModifiers.Add(new AttributeModifier(
+                        (Meta.Attributes.Attribute) attributeCommandReader["attribute"],
+                        (double)attributeCommandReader["value"]));
+                }
+                
+                ItemMeta meta = new ItemMeta(displayName, lore, damage, flagsList, attributeModifiers);
                 ItemStack itemStack = new ItemStack(material, amount, meta);
                 items.Add(itemStack);
             }
@@ -114,8 +135,8 @@ namespace Playground.Manager.Inventory
                 itemStackCommand.ExecuteNonQuery();
 
                 string metaCommandString = @"
-                    INSERT INTO `itemmetas`(`id`, `itemstack_id`, `displayName`, `lore`, `flags`)
-                    VALUES(NULL, @itemStackId, @displayName, @lore, @flags)";
+                    INSERT INTO `itemmetas`(`itemstack_id`, `displayName`, `lore`, `flags`)
+                    VALUES(@itemStackId, @displayName, @lore, @flags)";
             
                 MySqlCommand metaCommand = new MySqlCommand(metaCommandString, con);
                 metaCommand.Parameters.AddWithValue("itemStackId", itemStackCommand.LastInsertedId);
@@ -130,6 +151,19 @@ namespace Playground.Manager.Inventory
                 
                 metaCommand.Parameters.AddWithValue("flags", (int)flagValue);
                 metaCommand.ExecuteNonQuery();
+                
+                foreach (var attributeModifier in itemStack.Meta.AttributeModifiers)
+                {
+                    string attributeCommandString = @"INSERT INTO `attributemodifiers` (`itemmeta_id`, `attribute`, `value`) VALUES (@itemMetaId, @attribute, @value); ";
+            
+                    MySqlCommand attributeCommand = new MySqlCommand(attributeCommandString, con);
+                    attributeCommand.Parameters.AddWithValue("itemMetaId", itemStackCommand.LastInsertedId);
+                    attributeCommand.Parameters.AddWithValue("attribute", (int)attributeModifier.Attribute);
+                    attributeCommand.Parameters.AddWithValue("value", attributeModifier.Value);
+                    attributeCommand.ExecuteNonQuery();
+                    attributeCommand.Dispose();
+                }
+                
                 metaCommand.Dispose();
                 itemStackCommand.Dispose();
             }
