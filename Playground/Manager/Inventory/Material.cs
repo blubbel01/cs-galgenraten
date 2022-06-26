@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
 
 namespace Playground.Manager.Inventory
