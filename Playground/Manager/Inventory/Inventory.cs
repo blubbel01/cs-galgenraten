@@ -1,10 +1,21 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace Playground.Manager.Inventory
 {
+    [DataContract]
     public class Inventory
     {
+        [DataMember(Name = "title")]
+        private string _title;
+        
+        [DataMember(Name = "maxWeight")]
+        private double _maxWeight = 0;
+        
+        [DataMember(Name = "items")]
+        private List<ItemStack> _items;
+        
         public Inventory(string title, double maxWeight, List<ItemStack> items)
         {
             _title = title;
@@ -17,11 +28,7 @@ namespace Playground.Manager.Inventory
             _maxWeight = maxWeight;
             _items = new List<ItemStack>();
         }
-
-        private string _title;
-        private double _maxWeight = 0;
-        private List<ItemStack> _items;
-
+        
         public List<ItemStack> AddItems(List<ItemStack> items)
         {
             List<ItemStack> remaining = new List<ItemStack>();
@@ -62,7 +69,7 @@ namespace Playground.Manager.Inventory
 
             return items;
         }
-
+        
         public List<ItemStack> RemoveItems(List<ItemStack> items)
         {
             List<ItemStack> remaining = new List<ItemStack>();

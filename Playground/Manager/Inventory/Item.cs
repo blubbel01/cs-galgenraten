@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using MySql.Data.MySqlClient;
 
 namespace Playground.Manager.Inventory
@@ -11,13 +12,19 @@ namespace Playground.Manager.Inventory
         WEAPON_SMG = 12,
     }
 
+    [DataContract]
     public class MaterialObject
     {
-        private static Dictionary<Item, MaterialObject> _items = new Dictionary<Item, MaterialObject>();
+        public static Dictionary<Item, MaterialObject> _items = new Dictionary<Item, MaterialObject>();
 
         public static MaterialObject GetItemData(Item id)
         {
             return _items[id];
+        }
+
+        public static Dictionary<Item, MaterialObject> AllItems()
+        {
+            return _items;
         }
 
         public static void Init()
@@ -48,18 +55,43 @@ namespace Playground.Manager.Inventory
             }
         }
 
+        [DataMember(Name = "id")]
         private long _id;
+        
+        [DataMember(Name = "name")]
         private string _name;
+        
+        [DataMember(Name = "description")]
         private string _description;
+        
+        [DataMember(Name = "weight")]
         private double _weight;
+        
+        [DataMember(Name = "durability")]
         private short _durability;
+        
+        [DataMember(Name = "legal")]
         private bool _legal;
+        
+        [DataMember(Name = "disabled")]
         private bool _disabled;
+        
+        [DataMember(Name = "heal")]
         private int _heal;
+        
+        [DataMember(Name = "food")]
         private int _food;
+        
+        [DataMember(Name = "priceMin")]
         private int _priceMin;
+        
+        [DataMember(Name = "priceMax")]
         private int _priceMax;
+        
+        [DataMember(Name = "allowTrade")]
         private bool _allowTrade;
+        
+        [DataMember(Name = "sync")]
         private bool _sync;
 
         public MaterialObject(long id, string name, string description, double weight, short durability, bool legal, bool disabled, int heal, int food, int priceMin, int priceMax, bool allowTrade, bool sync)

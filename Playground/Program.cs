@@ -1,4 +1,5 @@
 ﻿using System;
+using Newtonsoft.Json;
 using Playground.Manager.Inventory;
 using Playground.Manager.Inventory.Meta;
 using Playground.Manager.Inventory.Meta.Attributes;
@@ -29,8 +30,10 @@ namespace Playground
             
             InventoryManager.SaveInventory(2, inventory);
             
-            Inventory inv = InventoryManager.GetInventory(2);
+            // Console.WriteLine(JsonConvert.SerializeObject(InventoryManager.GetInventory(2)));
+            Console.WriteLine(JsonConvert.SerializeObject(MaterialObject.AllItems()));
 
+            /*
             foreach (var itemStack in inv.Items)
             {
                 string s = "";
@@ -45,6 +48,7 @@ namespace Playground
                 s += "]";
                 Console.WriteLine(s);
             }
+            */
         }
 
     }

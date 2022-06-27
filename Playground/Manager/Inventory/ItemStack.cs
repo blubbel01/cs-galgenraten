@@ -1,12 +1,19 @@
 using System;
+using System.Runtime.Serialization;
 using Playground.Manager.Inventory.Meta;
 
 namespace Playground.Manager.Inventory
 {
+    [DataContract]
     public class ItemStack : ICloneable
     {
+        [DataMember(Name = "item")]
         private Item _item = Manager.Inventory.Item.NULL;
+        
+        [DataMember(Name = "amount")]
         private long _amount = 0;
+        
+        [DataMember(Name = "meta")]
         private ItemMeta _meta;
 
         public ItemStack(Item item, long amount)

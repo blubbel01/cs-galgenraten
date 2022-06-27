@@ -1,15 +1,26 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using Playground.Manager.Inventory.Meta.Attributes;
 
 namespace Playground.Manager.Inventory.Meta
 {
+    [DataContract]
     public class ItemMeta : IEquatable<ItemMeta>, ICloneable
     {
+        [DataMember(Name = "displayName")]
         private string _displayName;
+        
+        [DataMember(Name = "lore")]
         private string _lore;
+        
+        [DataMember(Name = "damage")]
         private short _damage;
+        
+        [DataMember(Name = "flagList")]
         private HashSet<ItemFlags> _flagsList;
+        
+        [DataMember(Name = "attributeModifiers")]
         private Dictionary<ItemAttribute, double> _attributeModifiers;
 
         public ItemMeta()
