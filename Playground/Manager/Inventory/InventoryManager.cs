@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using MySql.Data.MySqlClient;
 using Playground.Manager.Inventory.Meta;
 using Playground.Manager.Inventory.Meta.Attributes;
@@ -84,7 +85,7 @@ namespace Playground.Manager.Inventory
             reader.Close();
             reader.Dispose();
 
-            return new Inventory(inv.Title, inv.MaxWeight, items);
+            return new Inventory(inv.Title, inv.MaxWeight, items, inv.Attributes);
         }
 
         public static void DeleteInventory(long id)
@@ -102,23 +103,38 @@ namespace Playground.Manager.Inventory
 
         public static void SaveInventory(int id, Inventory inv)
         {
-            DeleteInventory(id);
-            
-            // Erstelle Inventar Objekt
-            string commandString = @"
-                INSERT INTO `inventories`(`id`, `title`, `maxWeight`)
-                VALUES(
-                    @id,
-                    @title,
-                    @maxWeight
-            )";
-            
             MySqlConnection con = DatabaseHandler.GetConnection();
-            MySqlCommand command = new MySqlCommand(commandString, con);
-            command.Parameters.AddWithValue("id", id);
-            command.Parameters.AddWithValue("title", inv.Title);
-            command.Parameters.AddWithValue("maxWeight", inv.MaxWeight);
-            command.ExecuteNonQuery();
+            if (_createInventoryFromDbId(id) != null)
+            {
+                string commandStringItems = @"DELETE FROM itemstacks WHERE inventory_id = @id";
+                MySqlCommand commandItems = new MySqlCommand(commandStringItems, con);
+                commandItems.Parameters.AddWithValue("id", id);
+                commandItems.ExecuteNonQuery();
+                commandItems.Dispose();
+                
+                string commandStringAttributes = @"DELETE FROM inventory_attributes WHERE inventory_id = @id";
+                MySqlCommand commandAttributes = new MySqlCommand(commandStringAttributes, con);
+                commandAttributes.Parameters.AddWithValue("id", id);
+                commandAttributes.ExecuteNonQuery();
+                commandAttributes.Dispose();
+            }
+            else
+            {
+                string commandString = @"
+                    INSERT INTO `inventories`(`id`, `title`, `maxWeight`)
+                    VALUES(
+                        @id,
+                        @title,
+                        @maxWeight
+                )";
+            
+                MySqlCommand command = new MySqlCommand(commandString, con);
+                command.Parameters.AddWithValue("id", id);
+                command.Parameters.AddWithValue("title", inv.Title);
+                command.Parameters.AddWithValue("maxWeight", inv.MaxWeight);
+                command.ExecuteNonQuery();
+                command.Dispose();
+            }
 
             // Erstelle Items des Inventars
             
@@ -178,32 +194,70 @@ namespace Playground.Manager.Inventory
                 itemStackCommand.Dispose();
             }
             
+            
+            // Erstelle Attribute
+            
+            foreach (var (inventoryAttribute, value) in inv.Attributes)
+            {
+                
+                string invAttrCommandString = @"
+                    INSERT INTO `inventory_attributes`(`inventory_id`, `attribute`, `value`)
+                    VALUES(@invId, @attribute, @value);";
+                MySqlCommand invAttrCommand = new MySqlCommand(invAttrCommandString, con);
+                invAttrCommand.Parameters.AddWithValue("invId", id);
+                invAttrCommand.Parameters.AddWithValue("attribute", (int)inventoryAttribute);
+                invAttrCommand.Parameters.AddWithValue("value", value);
+                invAttrCommand.ExecuteNonQuery();
+                invAttrCommand.Dispose();
+            }
+            
             con.Close();
             con.Dispose();
         }
 
         static private Inventory _createInventoryFromDbId(long id)
         {
+            MySqlConnection con = DatabaseHandler.GetConnection();
             
             string commandString = @"
                 SELECT * FROM
                     inventories
                 WHERE
                     inventories.id = @id;";
-            MySqlConnection con = DatabaseHandler.GetConnection();
             MySqlCommand command = new MySqlCommand(commandString, con);
             command.Parameters.AddWithValue("id", id);
             MySqlDataReader reader = command.ExecuteReader();
 
             if (!reader.Read()) return null;
-            Inventory inv = new Inventory((string)reader["title"], (double)reader["maxWeight"]);
+            string title = (string)reader["title"];
+            double maxWeight = (double)reader["maxWeight"];
+            reader.Close();
+            reader.Dispose();
+            command.Dispose();
+
+            commandString = @"
+                SELECT * FROM
+                    inventory_attributes
+                WHERE
+                    inventory_attributes.inventory_id = @id;";
+            command = new MySqlCommand(commandString, con);
+            command.Parameters.AddWithValue("id", id);
+            reader = command.ExecuteReader();
+
+            Dictionary<InventoryAttribute, double> attributes = new Dictionary<InventoryAttribute, double>();
+            while (reader.Read())
+            {
+                attributes[(InventoryAttribute)reader["attribute"]] = (double)reader["value"];
+            }
+            
+            reader.Close();
+            reader.Dispose();
+            command.Dispose();
             
             con.Close();
             con.Dispose();
-            reader.Close();
-            reader.Dispose();
             
-            return inv;
+            return new Inventory(title, maxWeight, new List<ItemStack>(), attributes);
         }
     }
 }

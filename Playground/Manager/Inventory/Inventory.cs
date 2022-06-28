@@ -5,29 +5,35 @@ using Playground.Manager.Inventory.Meta;
 
 namespace Playground.Manager.Inventory
 {
+    public enum InventoryAttribute
+    {
+        GROUP_STORAGE
+    }
+    
     [DataContract]
     public class Inventory
     {
-        [DataMember(Name = "title")]
-        private string _title;
+        [DataMember(Name = "title")] private string _title;
         
-        [DataMember(Name = "maxWeight")]
-        private double _maxWeight = 0;
+        [DataMember(Name = "maxWeight")] private double _maxWeight = 0;
         
-        [DataMember(Name = "items")]
-        private List<ItemStack> _items;
-        
-        public Inventory(string title, double maxWeight, List<ItemStack> items)
+        [DataMember(Name = "items")] private List<ItemStack> _items;
+
+        [DataMember(Name = "attributes")] private Dictionary<InventoryAttribute, double> _attributes;
+
+        public Inventory(string title, double maxWeight, List<ItemStack> items, Dictionary<InventoryAttribute, double> attributes)
         {
             _title = title;
             _maxWeight = maxWeight;
             _items = items;
+            _attributes = attributes;
         }
         public Inventory(string title, double maxWeight)
         {
             _title = title;
             _maxWeight = maxWeight;
             _items = new List<ItemStack>();
+            _attributes = new Dictionary<InventoryAttribute, double>();
         }
         
         public bool AddItems(List<ItemStack> items, bool ignore = false, bool forced = false, bool syncIfAmmo = true)
@@ -156,6 +162,8 @@ namespace Playground.Manager.Inventory
         }
 
         public List<ItemStack> Items => _items;
+
+        public Dictionary<InventoryAttribute, double> Attributes => _attributes;
 
         public double MaxWeight
         {

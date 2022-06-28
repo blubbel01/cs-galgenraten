@@ -18,12 +18,11 @@ namespace Playground
 
         static void Exampe()
         {
-            
-            Console.WriteLine(JsonConvert.SerializeObject(InventoryManager.GetInventory(2).LegacyFormat()));
-            return;
             Inventory inventory = new Inventory("TEST", 0);
+            
+            inventory.Attributes[InventoryAttribute.GROUP_STORAGE] = 5;
 
-            ItemStack item = new ItemStack(Item.WEAPON_SMG, 1);
+            ItemStack item = new ItemStack(Item.WEAPON_SMG, 5);
             item.Meta.Damage = 500;
             item.Meta.AttributeModifiers[ItemAttribute.SSAJFG] = 15;
             item.Meta.FlagsList.Add(ItemFlags.NO_TRADE);
