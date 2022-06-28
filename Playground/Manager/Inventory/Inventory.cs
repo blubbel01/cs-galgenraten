@@ -30,10 +30,23 @@ namespace Playground.Manager.Inventory
             _items = new List<ItemStack>();
         }
         
-        public List<ItemStack> AddItems(List<ItemStack> items)
+        public bool AddItems(List<ItemStack> items, bool ignore = false, bool forced = false, bool syncIfAmmo = true)
         {
-            List<ItemStack> remaining = new List<ItemStack>();
+            if (!ignore && !forced)
+            {
+                double addWeight = 0;
+                foreach (var itemStack in items)
+                {
+                    addWeight += itemStack.Weight();
+                }
 
+                if (addWeight + CurrentWeight() > MaxWeight)
+                {
+                    return false;
+                }
+            }
+            
+            
             for (var i = 0; i < items.Count; i++)
             {
                 ItemStack curr = items[i];
@@ -45,7 +58,7 @@ namespace Playground.Manager.Inventory
                     ? curr.Amount
                     : Math.Round(curr.MaterialWeight() / emptySpace));
 
-                if (MaxWeight == 0)
+                if (MaxWeight == 0 || forced)
                 {
                     transferAmount = curr.Amount;
                 }
@@ -53,10 +66,6 @@ namespace Playground.Manager.Inventory
                 ItemStack toAdd = (ItemStack)curr.Clone();
                 toAdd.Amount = transferAmount;
                 curr.Amount -= transferAmount;
-                if (curr.Amount > 0)
-                {
-                    remaining.Add(curr);
-                }
 
                 if (index == -1)
                 {
@@ -68,7 +77,7 @@ namespace Playground.Manager.Inventory
                 }
             }
 
-            return items;
+            return true;
         }
 
         public void SetItemAmount(int index, long amount)
@@ -112,18 +121,12 @@ namespace Playground.Manager.Inventory
             return slots;
         }
         
-        public long AddItem(ItemStack item)
+        public bool AddItem(ItemStack item)
         {
             List<ItemStack> items = new List<ItemStack>();
             items.Add(item);
             
-            List<ItemStack> remainder = AddItems(items);
-            if (remainder.Count > 0)
-            {
-                return remainder[0].Amount;
-            }
-
-            return 0;
+            return AddItems(items);
         }
 
         public double CurrentWeight()
@@ -164,6 +167,20 @@ namespace Playground.Manager.Inventory
         {
             get => _title;
             set => _title = value;
+        }
+
+        public Dictionary<int, int> LegacyFormat()
+        {
+            Dictionary<int, int> legacyInventory = new Dictionary<int, int>();
+            foreach (var itemStack in Items)
+            {
+                if (!itemStack.Meta.IsNotEmpty())
+                {
+                    legacyInventory[(int)itemStack.Item] = (int)itemStack.Amount;
+                }
+            }
+
+            return legacyInventory;
         }
     }
 }

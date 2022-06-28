@@ -63,7 +63,7 @@ namespace Playground.Manager.Inventory.Meta
             set => _damage = value;
         }
 
-        public bool HasChanged()
+        public bool IsNotEmpty()
         {
             if (DisplayName != null) return true;
             if (Lore != null) return true;

@@ -139,8 +139,8 @@ namespace Playground.Manager.Inventory
                 itemStackCommand.Parameters.AddWithValue("amount", itemStack.Amount);
                 itemStackCommand.ExecuteNonQuery();
                 
-                Console.WriteLine(itemStack.Meta.HasChanged());
-                if (itemStack.Meta.HasChanged())
+                Console.WriteLine(itemStack.Meta.IsNotEmpty());
+                if (itemStack.Meta.IsNotEmpty())
                 {
                     string metaCommandString = @"
                     INSERT INTO `itemmetas`(`itemstack_id`, `displayName`, `lore`, `flags`, `damage`)
