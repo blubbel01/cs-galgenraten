@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using Playground.Manager.Inventory.Meta;
 
 namespace Playground.Manager.Inventory
 {
@@ -69,38 +70,48 @@ namespace Playground.Manager.Inventory
 
             return items;
         }
-        
-        public List<ItemStack> RemoveItems(List<ItemStack> items)
+
+        public void SetItemAmount(int index, long amount)
         {
-            List<ItemStack> remaining = new List<ItemStack>();
-
-            for (var i = 0; i < items.Count; i++)
+            if (amount > 0)
             {
-                ItemStack curr = items[i];
-                int index = _findItemStackIndex(curr);
+                Items[index].Amount = amount;
+            }
+            else
+            {
+                Items.RemoveAt(index);
+            }
+        }
 
-                if (index == -1)
+        public List<int> SlotsOfItem(Item item)
+        {
+            return SlotsOfItem(item, null);
+        }
+
+        public List<int> SlotsOfItem(Item item, HashSet<ItemFlags> flags)
+        {
+            List<int> slots = new List<int>();
+            for (var i = 0; i < Items.Count; i++)
+            {
+                var itemStack = Items[i];
+                if (itemStack.Item == item)
                 {
-                    remaining.Add(curr);
-                }
-                else
-                {
-                    if (Items[index].Amount >= curr.Amount)
+                    if (flags != null)
                     {
-                        Items[index].Amount -= curr.Amount;
+                        if (itemStack.Meta.FlagsList.Overlaps(flags))
+                        {
+                            slots.Add(i);
+                        }
                     }
                     else
                     {
-                        curr.Amount -= Items[index].Amount;
-                        Items[index].Amount = 0;
-                        remaining.Add(curr);
+                        slots.Add(i);
                     }
                 }
             }
-
-            return items;
+            return slots;
         }
-
+        
         public long AddItem(ItemStack item)
         {
             List<ItemStack> items = new List<ItemStack>();
