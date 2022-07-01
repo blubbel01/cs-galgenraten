@@ -191,8 +191,8 @@ namespace Playground.Manager.Inventory
                     toReturn += Attributes[InventoryAttribute.EXTRA_STORAGE];
                 }
 
-                int backpackSlot = SlotsOfItem(Item.BACKPACK)[0];
-                if (backpackSlot != -1)
+                List<int> backpackSlotList = SlotsOfItem(Item.BACKPACK);
+                if (backpackSlotList.Count > 0)
                 {
                     toReturn += 150;
                 }
