@@ -116,6 +116,18 @@ namespace Playground.Manager.Inventory
                 commandAttributes.Parameters.AddWithValue("id", id);
                 commandAttributes.ExecuteNonQuery();
                 commandAttributes.Dispose();
+
+                MySqlCommand commandUpdateInventoryTitle = new MySqlCommand(@"UPDATE inventories SET title = @title WHERE id = @id", con);
+                commandUpdateInventoryTitle.Parameters.AddWithValue("id", id);
+                commandUpdateInventoryTitle.Parameters.AddWithValue("title", inv.Title);
+                commandUpdateInventoryTitle.ExecuteNonQuery();
+                commandUpdateInventoryTitle.Dispose();
+                
+                MySqlCommand commandUpdateInventoryMaxWeight = new MySqlCommand(@"UPDATE inventories SET maxWeight = @maxWeight WHERE id = @id", con);
+                commandUpdateInventoryMaxWeight.Parameters.AddWithValue("id", id);
+                commandUpdateInventoryMaxWeight.Parameters.AddWithValue("maxWeight", inv.MaxWeight);
+                commandUpdateInventoryMaxWeight.ExecuteNonQuery();
+                commandUpdateInventoryMaxWeight.Dispose();
             }
             else
             {
