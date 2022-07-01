@@ -11,7 +11,7 @@ CREATE TABLE `inventories` (
                                `maxWeight` double NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `itemmetas` (
+CREATE TABLE `itemstack_metas` (
                              `itemstack_id` bigint(255) NOT NULL,
                              `displayName` varchar(255) DEFAULT NULL,
                              `lore` varchar(255) DEFAULT NULL,
@@ -47,7 +47,7 @@ ALTER TABLE `itemstack_attributes`
 ALTER TABLE `inventories`
     ADD PRIMARY KEY (`id`);
 
-ALTER TABLE `itemmetas`
+ALTER TABLE `itemstack_metas`
     ADD PRIMARY KEY (`itemstack_id`),
   ADD KEY `itemmeta_itemstack_id` (`itemstack_id`);
 
@@ -71,9 +71,9 @@ ALTER TABLE `itemstacks`
 
 
 ALTER TABLE `itemstack_attributes`
-    ADD CONSTRAINT `itemstack_attributes_ibfk_1` FOREIGN KEY (`itemmeta_id`) REFERENCES `itemmetas` (`itemstack_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+    ADD CONSTRAINT `itemstack_attributes_ibfk_1` FOREIGN KEY (`itemmeta_id`) REFERENCES `itemstack_metas` (`itemstack_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
-ALTER TABLE `itemmetas`
+ALTER TABLE `itemstack_metas`
     ADD CONSTRAINT `itemmeta_itemstack_id` FOREIGN KEY (`itemstack_id`) REFERENCES `itemstacks` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `itemstacks`

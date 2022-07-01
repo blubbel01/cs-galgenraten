@@ -170,7 +170,7 @@ namespace Playground.Manager.Inventory
                 if (itemStack.Meta.IsNotEmpty())
                 {
                     string metaCommandString = @"
-                    INSERT INTO `itemmetas`(`itemstack_id`, `displayName`, `lore`, `flags`, `damage`)
+                    INSERT INTO `itemstack_metas`(`itemstack_id`, `displayName`, `lore`, `flags`, `damage`)
                     VALUES(@itemStackId, @displayName, @lore, @flags, @damage)";
             
                     MySqlCommand metaCommand = new MySqlCommand(metaCommandString, con);
