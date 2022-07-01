@@ -7,14 +7,11 @@ namespace Playground.Manager.Inventory
     [DataContract]
     public class ItemStack : ICloneable
     {
-        [DataMember(Name = "item")]
-        private Item _item = Manager.Inventory.Item.NULL;
-        
-        [DataMember(Name = "amount")]
-        private long _amount = 0;
-        
-        [DataMember(Name = "meta")]
-        private ItemMeta _meta;
+        [DataMember(Name = "item")] private Item _item = Manager.Inventory.Item.NULL;
+
+        [DataMember(Name = "amount")] private long _amount = 0;
+
+        [DataMember(Name = "meta")] private ItemMeta _meta;
 
         public ItemStack(Item item, long amount)
         {
@@ -57,7 +54,7 @@ namespace Playground.Manager.Inventory
         {
             return MaterialObject.GetItemData(_item).Weight;
         }
-        
+
         public double Weight()
         {
             return MaterialWeight() * Amount;
@@ -65,7 +62,7 @@ namespace Playground.Manager.Inventory
 
         public object Clone()
         {
-            return new ItemStack(_item, _amount, (ItemMeta) _meta.Clone());
+            return new ItemStack(_item, _amount, (ItemMeta)_meta.Clone());
         }
     }
 }

@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using MySql.Data.MySqlClient;
 using Playground.Manager.Inventory.Meta;
 using Playground.Manager.Inventory.Meta.Attributes;

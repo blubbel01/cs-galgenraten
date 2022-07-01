@@ -55,46 +55,34 @@ namespace Playground.Manager.Inventory
             }
         }
 
-        [DataMember(Name = "id")]
-        private long _id;
-        
-        [DataMember(Name = "name")]
-        private string _name;
-        
-        [DataMember(Name = "description")]
-        private string _description;
-        
-        [DataMember(Name = "weight")]
-        private double _weight;
-        
-        [DataMember(Name = "durability")]
-        private short _durability;
-        
-        [DataMember(Name = "legal")]
-        private bool _legal;
-        
-        [DataMember(Name = "disabled")]
-        private bool _disabled;
-        
-        [DataMember(Name = "heal")]
-        private int _heal;
-        
-        [DataMember(Name = "food")]
-        private int _food;
-        
-        [DataMember(Name = "priceMin")]
-        private int _priceMin;
-        
-        [DataMember(Name = "priceMax")]
-        private int _priceMax;
-        
-        [DataMember(Name = "allowTrade")]
-        private bool _allowTrade;
-        
-        [DataMember(Name = "sync")]
-        private bool _sync;
+        [DataMember(Name = "id")] private long _id;
 
-        public MaterialObject(long id, string name, string description, double weight, short durability, bool legal, bool disabled, int heal, int food, int priceMin, int priceMax, bool allowTrade, bool sync)
+        [DataMember(Name = "name")] private string _name;
+
+        [DataMember(Name = "description")] private string _description;
+
+        [DataMember(Name = "weight")] private double _weight;
+
+        [DataMember(Name = "durability")] private short _durability;
+
+        [DataMember(Name = "legal")] private bool _legal;
+
+        [DataMember(Name = "disabled")] private bool _disabled;
+
+        [DataMember(Name = "heal")] private int _heal;
+
+        [DataMember(Name = "food")] private int _food;
+
+        [DataMember(Name = "priceMin")] private int _priceMin;
+
+        [DataMember(Name = "priceMax")] private int _priceMax;
+
+        [DataMember(Name = "allowTrade")] private bool _allowTrade;
+
+        [DataMember(Name = "sync")] private bool _sync;
+
+        public MaterialObject(long id, string name, string description, double weight, short durability, bool legal,
+            bool disabled, int heal, int food, int priceMin, int priceMax, bool allowTrade, bool sync)
         {
             _id = id;
             _name = name;
