@@ -5,7 +5,7 @@ using Playground.Manager.Inventory.Meta;
 namespace Playground.Manager.Inventory
 {
     [DataContract]
-    public class ItemStack : ICloneable
+    public class ItemStack : IEquatable<ItemStack>, ICloneable
     {
         [DataMember(Name = "item")] private Item _item = Manager.Inventory.Item.NULL;
 
@@ -33,14 +33,17 @@ namespace Playground.Manager.Inventory
             {
                 return false;
             }
+
             if (_item != other.Item)
             {
                 return false;
             }
+
             if (!_meta.Equals(other._meta))
             {
                 return false;
             }
+
             return true;
         }
 
@@ -71,6 +74,26 @@ namespace Playground.Manager.Inventory
         public object Clone()
         {
             return new ItemStack(_item, _amount, (ItemMeta)_meta.Clone());
+        }
+
+        public bool Equals(ItemStack other)
+        {
+            if (!Name.Equals(other.Name))
+            {
+                return false;
+            }
+
+            if (Amount != other.Amount)
+            {
+                return false;
+            }
+
+            if (!Meta.Equals(other.Meta))
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

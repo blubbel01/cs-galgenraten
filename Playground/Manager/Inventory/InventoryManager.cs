@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading;
+using Newtonsoft.Json;
 using Playground.Manager.Inventory.Meta;
 using Playground.Manager.Inventory.Meta.Attributes;
 
@@ -113,18 +115,13 @@ namespace Playground.Manager.Inventory
                     cDatabase.Instance.executePreparedQuery("UPDATE inventories SET title = @title WHERE id = @id", parameters);
                 }
 
-                // Macht man wohl seperat...
-                /*
                 if (currentDbInventory.MaxWeight != inv.MaxWeight)
                 {
-                    MySqlCommand commandUpdateInventoryMaxWeight =
-                        new MySqlCommand(@"UPDATE inventories SET maxWeight = @maxWeight WHERE id = @id", con);
-                    commandUpdateInventoryMaxWeight.Parameters.AddWithValue("id", id);
-                    commandUpdateInventoryMaxWeight.Parameters.AddWithValue("maxWeight", inv.MaxWeight);
-                    commandUpdateInventoryMaxWeight.ExecuteNonQuery();
-                    commandUpdateInventoryMaxWeight.Dispose();
+                    Dictionary<string, object> parameters = new Dictionary<string, object>();
+                    parameters.Add("@id", id);
+                    parameters.Add("@maxWeight", inv.MaxWeight);
+                    cDatabase.Instance.executePreparedQuery("UPDATE inventories SET maxWeight = @maxWeight WHERE id = @id", parameters);
                 }
-                */
                 
                 int i;
                 for (i = 0; i < currentDbInventory.Items.Count; i++)
@@ -220,9 +217,11 @@ namespace Playground.Manager.Inventory
                 parameters.Add("@id", id);
                 parameters.Add("@title", inv.Title);
                 parameters.Add("@maxWeight", inv.MaxWeight);
-                cDatabase.Instance.executePreparedQuery(@"
+                cDatabase.Instance.ExecutePreparedQueryWithResult(@"
                     INSERT INTO `inventories`(`id`, `title`, `maxWeight`)
                     VALUES(@id, @title, @maxWeight)", parameters);
+                
+                Thread.Sleep(50);
                 
                 // Erstelle Items des Inventars
 
@@ -232,7 +231,7 @@ namespace Playground.Manager.Inventory
                 }
 
                 // Erstelle Attribute
-
+                
                 foreach (var (inventoryAttribute, value) in inv.Attributes)
                 {
                     Dictionary<string, object> parameters1 = new Dictionary<string, object>();
@@ -276,14 +275,14 @@ namespace Playground.Manager.Inventory
             return new Inventory(title, maxWeight, new List<ItemStack>(), attributes);
         }
 
-        static private void _createItemStack(long inventoryId, long index, ItemStack itemStack)
+        private static void _createItemStack(long inventoryId, long index, ItemStack itemStack)
         {
             Dictionary<string, object> parameters = new Dictionary<string, object>();
             parameters.Add("@index", index);
             parameters.Add("@invId", inventoryId);
             parameters.Add("@itemId", (long)itemStack.Item);
             parameters.Add("@amount", itemStack.Amount);
-            cDatabase.Instance.executePreparedQuery(@"
+            cDatabase.Instance.ExecutePreparedQueryWithResult(@"
                 INSERT INTO `itemstacks`(
                     `index`,
                     `inventory_id`,
@@ -306,7 +305,7 @@ namespace Playground.Manager.Inventory
                 metaParameters.Add("@displayName", itemStack.Meta.DisplayName);
                 metaParameters.Add("@lore", itemStack.Meta.Lore);
                 metaParameters.Add("@flags", flagValue);
-                cDatabase.Instance.executePreparedQuery(@"
+                cDatabase.Instance.ExecutePreparedQueryWithResult(@"
                     INSERT INTO `itemstack_metas`(
                         `inventory_id`,
                         `itemstack_index`,
@@ -316,15 +315,16 @@ namespace Playground.Manager.Inventory
                     )
                     VALUES(@invId, @index, @displayName, @lore, @flags)", metaParameters);
                 
-
-                foreach (var attributeModifier in itemStack.Meta.AttributeModifiers)
+                if (itemStack.Meta.AttributeModifiers.Count > 0)
                 {
-                    Dictionary<string, object> attributesParameters = new Dictionary<string, object>();
-                    metaParameters.Add("@index", index);
-                    metaParameters.Add("@invId", inventoryId);
-                    metaParameters.Add("@attribute", (int)attributeModifier.Key);
-                    metaParameters.Add("@value", attributeModifier.Value);
-                    cDatabase.Instance.executePreparedQuery(@"
+                    foreach (var attributeModifier in itemStack.Meta.AttributeModifiers)
+                    {
+                        Dictionary<string, object> attributesParameters = new Dictionary<string, object>();
+                        attributesParameters.Add("@index", index);
+                        attributesParameters.Add("@invId", inventoryId);
+                        attributesParameters.Add("@attribute", (int)attributeModifier.Key);
+                        attributesParameters.Add("@value", attributeModifier.Value);
+                        cDatabase.Instance.executePreparedQuery(@"
                         INSERT INTO `itemstack_attributes`(
                             `inventory_id`,
                             `itemmeta_itemstack_index`,
@@ -332,6 +332,7 @@ namespace Playground.Manager.Inventory
                             `value`
                         )
                         VALUES(@invId, @index, @attribute, @value)", attributesParameters);
+                    }   
                 }
             }
         }

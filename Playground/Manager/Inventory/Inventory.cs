@@ -11,7 +11,7 @@ namespace Playground.Manager.Inventory
     }
 
     [DataContract]
-    public class Inventory
+    public class Inventory : IEquatable<Inventory>
     {
         [DataMember(Name = "title")] private string _title;
 
@@ -220,6 +220,53 @@ namespace Playground.Manager.Inventory
             }
 
             return legacyInventory;
+        }
+
+        public bool Equals(Inventory other)
+        {
+            if (!Title.Equals(other.Title))
+            {
+                return false;
+            }
+
+            if (MaxWeight != other.MaxWeight)
+            {
+                return false;
+            }
+
+            if (Items.Count != other.Items.Count)
+            {
+                return false;
+            }
+
+            if (Attributes.Count != other.Attributes.Count)
+            {
+                return false;
+            }
+            
+            for (var i = 0; i < Items.Count; i++)
+            {
+                ItemStack thisItemStack = Items[i];
+                ItemStack thatItemStack = other.Items[i];
+                if (!thisItemStack.Equals(thatItemStack))
+                {
+                    return false;
+                }
+            }
+            
+            foreach (var (key, value) in Attributes)
+            {
+                if (!other.Attributes.ContainsKey(key))
+                {
+                    return false;
+                }
+                if (value != other.Attributes[key])
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }
