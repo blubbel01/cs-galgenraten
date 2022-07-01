@@ -29,10 +29,18 @@ namespace Playground.Manager.Inventory
 
         public bool IsSameType(ItemStack other)
         {
-            if (!_item.Equals(other.Item))
+            if (other == null)
+            {
                 return false;
+            }
+            if (_item != other.Item)
+            {
+                return false;
+            }
             if (!_meta.Equals(other._meta))
+            {
                 return false;
+            }
             return true;
         }
 

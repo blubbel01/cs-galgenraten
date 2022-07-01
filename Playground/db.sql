@@ -1,3 +1,5 @@
+
+
 CREATE TABLE `inventories` (
                                `id` bigint(255) NOT NULL,
                                `title` varchar(255) NOT NULL,
@@ -27,23 +29,24 @@ CREATE TABLE `items` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `itemstacks` (
-                              `id` bigint(255) NOT NULL,
+                              `index` bigint(255) NOT NULL,
                               `inventory_id` bigint(255) NOT NULL,
                               `item_id` bigint(255) NOT NULL,
                               `amount` bigint(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `itemstack_attributes` (
-                                        `itemmeta_id` bigint(255) NOT NULL,
+                                        `inventory_id` bigint(20) NOT NULL,
+                                        `itemmeta_itemstack_index` bigint(255) NOT NULL,
                                         `attribute` int(11) NOT NULL,
                                         `value` double NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `itemstack_metas` (
-                                   `itemstack_id` bigint(255) NOT NULL,
+                                   `inventory_id` bigint(20) NOT NULL,
+                                   `itemstack_index` bigint(255) NOT NULL,
                                    `displayName` varchar(255) DEFAULT NULL,
                                    `lore` varchar(255) DEFAULT NULL,
-                                   `damage` smallint(6) NOT NULL,
                                    `flags` int(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `item_count` (
@@ -53,7 +56,7 @@ CREATE TABLE `item_count` (
 );
 DROP TABLE IF EXISTS `item_count`;
 
-CREATE VIEW `item_count` AS SELECT `items`.`id` AS `id`, `items`.`name` AS `name`, sum(`itemstacks`.`amount`) AS `amount` FROM (`items` join `itemstacks` on(`itemstacks`.`item_id` = `items`.`id`))  ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `item_count`  AS SELECT `items`.`id` AS `id`, `items`.`name` AS `name`, sum(`itemstacks`.`amount`) AS `amount` FROM (`items` join `itemstacks` on(`itemstacks`.`item_id` = `items`.`id`))  ;
 
 
 ALTER TABLE `inventories`
@@ -67,26 +70,25 @@ ALTER TABLE `items`
     ADD PRIMARY KEY (`id`);
 
 ALTER TABLE `itemstacks`
-    ADD PRIMARY KEY (`id`),
+    ADD PRIMARY KEY (`index`,`inventory_id`),
   ADD KEY `itemstack_inventory_id` (`inventory_id`),
   ADD KEY `itemstack_type` (`item_id`);
 
 ALTER TABLE `itemstack_attributes`
-    ADD PRIMARY KEY (`itemmeta_id`,`attribute`),
-  ADD KEY `attributemodifiers_itemmeta_id` (`itemmeta_id`);
+    ADD PRIMARY KEY (`inventory_id`,`itemmeta_itemstack_index`,`attribute`),
+  ADD KEY `attributemodifiers_itemmeta_id` (`itemmeta_itemstack_index`),
+  ADD KEY `itemstack_attributes_itemstack_metas` (`itemmeta_itemstack_index`,`inventory_id`);
 
 ALTER TABLE `itemstack_metas`
-    ADD PRIMARY KEY (`itemstack_id`),
-  ADD KEY `itemmeta_itemstack_id` (`itemstack_id`);
+    ADD PRIMARY KEY (`inventory_id`,`itemstack_index`),
+  ADD KEY `itemmeta_itemstack_id` (`itemstack_index`),
+  ADD KEY `itemstack_metas_itemstack` (`itemstack_index`,`inventory_id`);
 
 
 ALTER TABLE `inventories`
     MODIFY `id` bigint(255) NOT NULL AUTO_INCREMENT;
 
 ALTER TABLE `items`
-    MODIFY `id` bigint(255) NOT NULL AUTO_INCREMENT;
-
-ALTER TABLE `itemstacks`
     MODIFY `id` bigint(255) NOT NULL AUTO_INCREMENT;
 
 
@@ -98,7 +100,8 @@ ALTER TABLE `itemstacks`
   ADD CONSTRAINT `itemstack_type` FOREIGN KEY (`item_id`) REFERENCES `items` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `itemstack_attributes`
-    ADD CONSTRAINT `itemstack_attributes_ibfk_1` FOREIGN KEY (`itemmeta_id`) REFERENCES `itemstack_metas` (`itemstack_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+    ADD CONSTRAINT `itemstack_attributes_itemstack_metas` FOREIGN KEY (`itemmeta_itemstack_index`,`inventory_id`) REFERENCES `itemstack_metas` (`itemstack_index`, `inventory_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `itemstack_metas`
-    ADD CONSTRAINT `itemmeta_itemstack_id` FOREIGN KEY (`itemstack_id`) REFERENCES `itemstacks` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+    ADD CONSTRAINT `itemstack_metas_itemstack` FOREIGN KEY (`itemstack_index`,`inventory_id`) REFERENCES `itemstacks` (`index`, `inventory_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+COMMIT;

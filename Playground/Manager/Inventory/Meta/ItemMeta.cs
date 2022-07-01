@@ -12,8 +12,6 @@ namespace Playground.Manager.Inventory.Meta
 
         [DataMember(Name = "lore")] private string _lore;
 
-        [DataMember(Name = "damage")] private short _damage;
-
         [DataMember(Name = "flagList")] private HashSet<ItemFlags> _flagsList;
 
         [DataMember(Name = "attributeModifiers")]
@@ -23,17 +21,15 @@ namespace Playground.Manager.Inventory.Meta
         {
             _displayName = null;
             _lore = null;
-            _damage = 0;
             _flagsList = new HashSet<ItemFlags>();
             _attributeModifiers = new Dictionary<ItemAttribute, double>();
         }
 
-        public ItemMeta(string displayName, string lore, short damage, HashSet<ItemFlags> flagsList,
+        public ItemMeta(string displayName, string lore, HashSet<ItemFlags> flagsList,
             Dictionary<ItemAttribute, double> attributeModifiers)
         {
             _displayName = displayName;
             _lore = lore;
-            _damage = damage;
             _flagsList = flagsList;
             _attributeModifiers = attributeModifiers;
         }
@@ -54,17 +50,10 @@ namespace Playground.Manager.Inventory.Meta
             set => _lore = value;
         }
 
-        public short Damage
-        {
-            get => _damage;
-            set => _damage = value;
-        }
-
         public bool IsNotEmpty()
         {
             if (DisplayName != null) return true;
             if (Lore != null) return true;
-            if (Damage != 0) return true;
             if (FlagsList.Count > 0) return true;
             if (AttributeModifiers.Count > 0) return true;
             return false;
@@ -75,6 +64,7 @@ namespace Playground.Manager.Inventory.Meta
         {
             if (other == null)
                 return false;
+            
 
             if (DisplayName == null ^ other.DisplayName == null)
                 return false;
@@ -85,30 +75,35 @@ namespace Playground.Manager.Inventory.Meta
                 if (!DisplayName.Equals(other.DisplayName))
                     return false;
 
+            
             if (Lore != null)
                 if (!Lore.Equals(other.Lore))
                     return false;
-
-            if (Damage != other.Damage)
-                return false;
+            
+            
 
             if (AttributeModifiers.Count != other.AttributeModifiers.Count)
                 return false;
 
+            
+            
             if (FlagsList.Count != other.FlagsList.Count)
                 return false;
+            
 
             foreach (var (key, value) in AttributeModifiers)
             {
                 if (other.AttributeModifiers[key] != value)
                     return false;
             }
+            
 
             foreach (var itemFlags in FlagsList)
             {
                 if (!other.FlagsList.Contains(itemFlags))
                     return false;
             }
+            
 
             return true;
         }
@@ -121,7 +116,7 @@ namespace Playground.Manager.Inventory.Meta
                 flagsList.Add(itemFlag);
             }
 
-            return new ItemMeta(DisplayName, Lore, Damage, FlagsList, AttributeModifiers);
+            return new ItemMeta(DisplayName, Lore, FlagsList, AttributeModifiers);
         }
     }
 }

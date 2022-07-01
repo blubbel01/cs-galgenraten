@@ -100,6 +100,18 @@ namespace Playground.Manager.Inventory
             }
         }
 
+        public void RemoveItemAmount(int index, long amount, bool allowNegative = false)
+        {
+            if (Items[index].Amount - amount > 0 && !allowNegative)
+            {
+                Items[index].Amount -= amount;
+            }
+            else
+            {
+                Items.RemoveAt(index);
+            }
+        }
+
         public List<int> SlotsOfItem(Item item)
         {
             return SlotsOfItem(item, null);
