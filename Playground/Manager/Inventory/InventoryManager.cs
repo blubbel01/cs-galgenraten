@@ -190,7 +190,7 @@ namespace Playground.Manager.Inventory
                 
                     foreach (var attributeModifier in itemStack.Meta.AttributeModifiers)
                     {
-                        string attributeCommandString = @"INSERT INTO `attributemodifiers` (`itemmeta_id`, `attribute`, `value`) VALUES (@itemMetaId, @attribute, @value); ";
+                        string attributeCommandString = @"INSERT INTO `itemstack_attributes` (`itemmeta_id`, `attribute`, `value`) VALUES (@itemMetaId, @attribute, @value); ";
             
                         MySqlCommand attributeCommand = new MySqlCommand(attributeCommandString, con);
                         attributeCommand.Parameters.AddWithValue("itemMetaId", itemStackCommand.LastInsertedId);

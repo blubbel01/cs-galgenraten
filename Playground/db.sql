@@ -1,81 +1,82 @@
+
+CREATE TABLE `itemstack_attributes` (
+                                      `itemmeta_id` bigint(255) NOT NULL,
+                                      `attribute` int(11) NOT NULL,
+                                      `value` double NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `inventories` (
+                               `id` bigint(255) NOT NULL,
+                               `title` varchar(255) NOT NULL,
+                               `maxWeight` double NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `itemmetas` (
+                             `itemstack_id` bigint(255) NOT NULL,
+                             `displayName` varchar(255) DEFAULT NULL,
+                             `lore` varchar(255) DEFAULT NULL,
+                             `damage` smallint(6) NOT NULL,
+                             `flags` int(4) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `items` (
-                         `id` bigint(11) NOT NULL,
+                         `id` bigint(255) NOT NULL,
                          `name` varchar(255) NOT NULL,
+                         `description` text NOT NULL,
                          `weight` double NOT NULL,
                          `legal` tinyint(1) NOT NULL,
-                         `description` text NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                         `useable` tinyint(1) NOT NULL,
+                         `wearable` tinyint(1) NOT NULL,
+                         `placeable` tinyint(1) NOT NULL,
+                         `locked` tinyint(1) NOT NULL,
+                         `durability` smallint(6) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `item_metas` (
-                              `id` bigint(11) NOT NULL,
-                              `script_key` varchar(255) NOT NULL,
-                              `script_value` varchar(255) DEFAULT NULL,
-                              `storages_items_id` bigint(20) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE `itemstacks` (
+                              `id` bigint(255) NOT NULL,
+                              `inventory_id` bigint(255) NOT NULL,
+                              `item_id` bigint(255) NOT NULL,
+                              `amount` bigint(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `storages` (
-                            `id` bigint(20) NOT NULL,
-                            `max_size` double NOT NULL,
-                            `types_id` bigint(20) NOT NULL,
-                            `reference_id` bigint(20) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE `storages_items` (
-                                  `id` bigint(20) NOT NULL,
-                                  `items_id` bigint(20) NOT NULL,
-                                  `storage_id` bigint(20) NOT NULL,
-                                  `amount` bigint(20) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+ALTER TABLE `itemstack_attributes`
+    ADD PRIMARY KEY (`itemmeta_id`,`attribute`),
+  ADD KEY `itemstack_attributes_itemmeta_id` (`itemmeta_id`);
 
-CREATE TABLE `storage_types` (
-                                 `id` bigint(20) NOT NULL,
-                                 `name` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+ALTER TABLE `inventories`
+    ADD PRIMARY KEY (`id`);
 
+ALTER TABLE `itemmetas`
+    ADD PRIMARY KEY (`itemstack_id`),
+  ADD KEY `itemmeta_itemstack_id` (`itemstack_id`);
 
 ALTER TABLE `items`
     ADD PRIMARY KEY (`id`);
 
-ALTER TABLE `item_metas`
+ALTER TABLE `itemstacks`
     ADD PRIMARY KEY (`id`),
-    ADD KEY `storages_items_id` (`storages_items_id`);
+  ADD KEY `itemstack_inventory_id` (`inventory_id`),
+  ADD KEY `itemstack_type` (`item_id`);
 
-ALTER TABLE `storages`
-    ADD PRIMARY KEY (`id`),
-    ADD KEY `types_id` (`types_id`);
 
-ALTER TABLE `storages_items`
-    ADD PRIMARY KEY (`id`),
-    ADD KEY `storage_id` (`storage_id`),
-    ADD KEY `items_id` (`items_id`);
-
-ALTER TABLE `storage_types`
-    ADD PRIMARY KEY (`id`);
-
+ALTER TABLE `inventories`
+    MODIFY `id` bigint(255) NOT NULL AUTO_INCREMENT;
 
 ALTER TABLE `items`
-    MODIFY `id` bigint(11) NOT NULL AUTO_INCREMENT;
+    MODIFY `id` bigint(255) NOT NULL AUTO_INCREMENT;
 
-ALTER TABLE `item_metas`
-    MODIFY `id` bigint(11) NOT NULL AUTO_INCREMENT;
-
-ALTER TABLE `storages`
-    MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
-
-ALTER TABLE `storages_items`
-    MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
-
-ALTER TABLE `storage_types`
-    MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `itemstacks`
+    MODIFY `id` bigint(255) NOT NULL AUTO_INCREMENT;
 
 
-ALTER TABLE `item_metas`
-    ADD CONSTRAINT `item_metas_ibfk_1` FOREIGN KEY (`storages_items_id`) REFERENCES `storages_items` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `itemstack_attributes`
+    ADD CONSTRAINT `itemstack_attributes_ibfk_1` FOREIGN KEY (`itemmeta_id`) REFERENCES `itemmetas` (`itemstack_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
-ALTER TABLE `storages`
-    ADD CONSTRAINT `storages_ibfk_1` FOREIGN KEY (`types_id`) REFERENCES `storage_types` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `itemmetas`
+    ADD CONSTRAINT `itemmeta_itemstack_id` FOREIGN KEY (`itemstack_id`) REFERENCES `itemstacks` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
-ALTER TABLE `storages_items`
-    ADD CONSTRAINT `storages_items_ibfk_1` FOREIGN KEY (`items_id`) REFERENCES `items` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-    ADD CONSTRAINT `storages_items_ibfk_2` FOREIGN KEY (`storage_id`) REFERENCES `storages` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
+ALTER TABLE `itemstacks`
+    ADD CONSTRAINT `itemstack_inventory_id` FOREIGN KEY (`inventory_id`) REFERENCES `inventories` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `itemstack_type` FOREIGN KEY (`item_id`) REFERENCES `items` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+COMMIT;
