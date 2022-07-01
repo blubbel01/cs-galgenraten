@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading.Tasks;
 using MySqlConnector;
 using Playground;
 
@@ -12,14 +13,12 @@ public class cDatabaseManager
 
     public static cDatabaseManager instance;
     public static bool connected;
-    bool beta;
     /* Constructor */
 
     public cDatabaseManager()
     {
         instance = this;
         connected = false;
-        beta = true;
     }
 
     /* Exports */
@@ -84,6 +83,31 @@ public class cDatabaseManager
         }
     }
 
+    public long ExecutePreparedQueryWithLastInsertResult(string sql, Dictionary<string, string> parameters)
+    {
+        using (MySqlConnection conn = new MySqlConnection(connStr))
+        {
+            try
+            {
+                conn.Open();
+                MySqlCommand cmd = new MySqlCommand(sql, conn);
+
+
+                foreach (KeyValuePair<string, string> entry in parameters)
+                {
+                    cmd.Parameters.AddWithValue(entry.Key, entry.Value);
+                }
+
+                cmd.ExecuteNonQuery();
+                return cmd.LastInsertedId;
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+        }
+    }
+    
     public long ExecutePreparedQueryWithLastInsertResult(string sql, Dictionary<string, object> parameters)
     {
         using (MySqlConnection conn = new MySqlConnection(connStr))
@@ -258,8 +282,9 @@ public class cDatabaseManager
     }
     
     
-    public void onResourceStart()
+    public Task tryConnect()
     {
+        var tsc = new TaskCompletionSource<int>();
         dataAdapters = new Dictionary<string, MySqlDataAdapter>();
 
         connStr =
@@ -275,15 +300,17 @@ public class cDatabaseManager
                 if (conn.State == ConnectionState.Open)
                 {
                     connected = true;
-                    startServerMySQLConnection();
+                    Program.Example();
+                    tsc.SetResult(0);
                 }
             }
             catch (Exception ex)
             {
                 connected = false;
             }
-
         }
+
+        return tsc.Task;
     }
     
     

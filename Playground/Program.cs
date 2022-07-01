@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using Newtonsoft.Json;
 using Playground.Manager.Inventory;
 using Playground.Manager.Inventory.Meta.Attributes;
@@ -11,19 +10,16 @@ namespace Playground
         static void Main(string[] args)
         {
             new cDatabaseManager();
-            cDatabaseManager.instance.onResourceStart();
+            cDatabaseManager.instance.tryConnect();
         }
 
         public static void Example()
         {
             MaterialObject.Init();
 
-            for (int i = 1; i <= 3; i++)
-            {
-                InventoryManager.DeleteInventory(i);
-            }
-            
-            Thread.Sleep(500);
+            InventoryManager.DeleteInventory(1);
+            InventoryManager.DeleteInventory(2);
+            InventoryManager.DeleteInventory(3);
 
             _testCreateItemNormal();
             _testCreateItemMeta();
@@ -38,9 +34,11 @@ namespace Playground
         private static void _testCreateItemNormal(int invId = 1)
         {
             Console.WriteLine("[CHECK] Create Item Normal!");
+            
             Inventory inv = new Inventory("Test", 10000);
             ItemStack newItem = new ItemStack(Item.WEAPON_SMG, 12);
             inv.AddItem(newItem);
+            
             InventoryManager.SaveInventory(invId, inv);
             
             Inventory checkInf = InventoryManager.GetInventory(invId);
@@ -86,7 +84,7 @@ namespace Playground
             }
         }
 
-        private static void _testUpdateAmount(int invId = 3)
+        private static async void _testUpdateAmount(int invId = 3)
         {
             Console.WriteLine("[CHECK] Update Amount!");
             Inventory inv = new Inventory("Test", 10000);

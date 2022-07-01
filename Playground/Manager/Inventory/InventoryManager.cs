@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading;
+using Database;
 using Newtonsoft.Json;
 using Playground.Manager.Inventory.Meta;
 using Playground.Manager.Inventory.Meta.Attributes;
@@ -37,8 +38,8 @@ namespace Playground.Manager.Inventory
 
             Dictionary<string, object> parameters = new Dictionary<string, object>();
             parameters.Add("@id", id);
-            DataTable itemQueryResults = cDatabase.Instance.ExecutePreparedQueryWithResult(commandString, parameters);
-
+            DataTable itemQueryResults = Query.ExecuteWithResult(commandString, parameters);
+            
             Dictionary<long, ItemStack> items = new Dictionary<long, ItemStack>();
 
             
@@ -98,7 +99,7 @@ namespace Playground.Manager.Inventory
             string commandString = "DELETE FROM inventories WHERE `inventories`.`id` = @id";
             Dictionary<string, object> parameters = new Dictionary<string, object>();
             parameters.Add("@id", id);
-            cDatabase.Instance.executePreparedQuery(commandString, parameters);
+            Query.Execute(commandString, parameters);
         }
 
         public static void SaveInventory(int id, Inventory inv)
@@ -112,7 +113,7 @@ namespace Playground.Manager.Inventory
                     Dictionary<string, object> parameters = new Dictionary<string, object>();
                     parameters.Add("@id", id);
                     parameters.Add("@title", inv.Title);
-                    cDatabase.Instance.executePreparedQuery("UPDATE inventories SET title = @title WHERE id = @id", parameters);
+                    Query.Execute("UPDATE inventories SET title = @title WHERE id = @id", parameters);
                 }
 
                 if (currentDbInventory.MaxWeight != inv.MaxWeight)
@@ -120,7 +121,7 @@ namespace Playground.Manager.Inventory
                     Dictionary<string, object> parameters = new Dictionary<string, object>();
                     parameters.Add("@id", id);
                     parameters.Add("@maxWeight", inv.MaxWeight);
-                    cDatabase.Instance.executePreparedQuery("UPDATE inventories SET maxWeight = @maxWeight WHERE id = @id", parameters);
+                    Query.Execute("UPDATE inventories SET maxWeight = @maxWeight WHERE id = @id", parameters);
                 }
                 
                 int i;
@@ -138,7 +139,7 @@ namespace Playground.Manager.Inventory
                             parameters.Add("@invId", id);
                             parameters.Add("@index", i);
                             parameters.Add("@amount", newDb.Amount);
-                            cDatabase.Instance.executePreparedQuery("UPDATE `itemstacks` SET `amount` = @amount WHERE `itemstacks`.`index` = @index AND `itemstacks`.`inventory_id` = @invId", parameters);
+                            Query.Execute("UPDATE `itemstacks` SET `amount` = @amount WHERE `itemstacks`.`index` = @index AND `itemstacks`.`inventory_id` = @invId", parameters);
                         }
                     }
                     else
@@ -146,7 +147,7 @@ namespace Playground.Manager.Inventory
                         Dictionary<string, object> parameters = new Dictionary<string, object>();
                         parameters.Add("@invId", id);
                         parameters.Add("@index", i);
-                        cDatabase.Instance.executePreparedQuery(@"
+                        Query.Execute(@"
                                     DELETE
                                     FROM
                                         itemstacks
@@ -174,7 +175,7 @@ namespace Playground.Manager.Inventory
                             parameters.Add("@invId", id);
                             parameters.Add("@attribute", (int)key);
                             parameters.Add("@value", inv.Attributes[key]);
-                            cDatabase.Instance.executePreparedQuery(@"
+                            Query.Execute(@"
                                 UPDATE
                                     `inventory_attributes`
                                 SET
@@ -188,7 +189,7 @@ namespace Playground.Manager.Inventory
                         Dictionary<string, object> parameters = new Dictionary<string, object>();
                         parameters.Add("@invId", id);
                         parameters.Add("@attribute", (int)key);
-                        cDatabase.Instance.executePreparedQuery(@"
+                        Query.Execute(@"
                             DELETE
                             FROM
                                 inventory_attributes
@@ -205,7 +206,7 @@ namespace Playground.Manager.Inventory
                         parameters.Add("@invId", id);
                         parameters.Add("@attribute", (int)key);
                         parameters.Add("@value", value);
-                        cDatabase.Instance.executePreparedQuery(@"
+                        Query.Execute(@"
                             INSERT INTO `inventory_attributes` (`inventory_id`, `attribute`, `value`)
                             VALUES (@invId, @attribute, @value)", parameters);
                     }
@@ -217,7 +218,7 @@ namespace Playground.Manager.Inventory
                 parameters.Add("@id", id);
                 parameters.Add("@title", inv.Title);
                 parameters.Add("@maxWeight", inv.MaxWeight);
-                cDatabase.Instance.ExecutePreparedQueryWithResult(@"
+                Query.ExecuteWithResult(@"
                     INSERT INTO `inventories`(`id`, `title`, `maxWeight`)
                     VALUES(@id, @title, @maxWeight)", parameters);
                 
@@ -238,7 +239,7 @@ namespace Playground.Manager.Inventory
                     parameters1.Add("@invId", id);
                     parameters1.Add("@attribute", (int)inventoryAttribute);
                     parameters1.Add("@value", value);
-                    cDatabase.Instance.executePreparedQuery(@"
+                    Query.Execute(@"
                     INSERT INTO `inventory_attributes`(`inventory_id`, `attribute`, `value`)
                     VALUES(@invId, @attribute, @value)", parameters1);
                 }
@@ -249,7 +250,7 @@ namespace Playground.Manager.Inventory
         {
             Dictionary<string, object> parameters = new Dictionary<string, object>();
             parameters.Add("@id", id);
-            DataTable results = cDatabase.Instance.ExecutePreparedQueryWithResult(@"
+            DataTable results = Query.ExecuteWithResult(@"
                 SELECT
                     *
                 FROM
@@ -282,7 +283,7 @@ namespace Playground.Manager.Inventory
             parameters.Add("@invId", inventoryId);
             parameters.Add("@itemId", (long)itemStack.Item);
             parameters.Add("@amount", itemStack.Amount);
-            cDatabase.Instance.ExecutePreparedQueryWithResult(@"
+            Query.ExecuteWithResult(@"
                 INSERT INTO `itemstacks`(
                     `index`,
                     `inventory_id`,
@@ -305,7 +306,7 @@ namespace Playground.Manager.Inventory
                 metaParameters.Add("@displayName", itemStack.Meta.DisplayName);
                 metaParameters.Add("@lore", itemStack.Meta.Lore);
                 metaParameters.Add("@flags", flagValue);
-                cDatabase.Instance.ExecutePreparedQueryWithResult(@"
+                Query.ExecuteWithResult(@"
                     INSERT INTO `itemstack_metas`(
                         `inventory_id`,
                         `itemstack_index`,
@@ -324,7 +325,7 @@ namespace Playground.Manager.Inventory
                         attributesParameters.Add("@invId", inventoryId);
                         attributesParameters.Add("@attribute", (int)attributeModifier.Key);
                         attributesParameters.Add("@value", attributeModifier.Value);
-                        cDatabase.Instance.executePreparedQuery(@"
+                        Query.Execute(@"
                         INSERT INTO `itemstack_attributes`(
                             `inventory_id`,
                             `itemmeta_itemstack_index`,

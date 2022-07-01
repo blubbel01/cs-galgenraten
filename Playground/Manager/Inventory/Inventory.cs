@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using Newtonsoft.Json;
 using Playground.Manager.Inventory.Meta;
 
 namespace Playground.Manager.Inventory
@@ -144,9 +145,11 @@ namespace Playground.Manager.Inventory
 
         public bool AddItem(ItemStack item)
         {
-            List<ItemStack> items = new List<ItemStack>();
-            items.Add(item);
-
+            var items = new List<ItemStack>
+            {
+                item
+            };
+            
             return AddItems(items);
         }
 

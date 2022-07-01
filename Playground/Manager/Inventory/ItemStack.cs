@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.Serialization;
+using Newtonsoft.Json;
 using Playground.Manager.Inventory.Meta;
 
 namespace Playground.Manager.Inventory
@@ -7,9 +8,9 @@ namespace Playground.Manager.Inventory
     [DataContract]
     public class ItemStack : IEquatable<ItemStack>, ICloneable
     {
-        [DataMember(Name = "item")] private Item _item = Manager.Inventory.Item.NULL;
+        [DataMember(Name = "item")] private Item _item;
 
-        [DataMember(Name = "amount")] private long _amount = 0;
+        [DataMember(Name = "amount")] private long _amount;
 
         [DataMember(Name = "meta")] private ItemMeta _meta;
 
@@ -78,6 +79,9 @@ namespace Playground.Manager.Inventory
 
         public bool Equals(ItemStack other)
         {
+            if (other == null)
+                return false;
+            
             if (!Name.Equals(other.Name))
             {
                 return false;

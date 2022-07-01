@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Runtime.Serialization;
+using Database;
 using MySql.Data.MySqlClient;
 
 namespace Playground.Manager.Inventory
@@ -33,7 +34,7 @@ namespace Playground.Manager.Inventory
         public static void Init()
         {
             string commandString = "SELECT * FROM items";
-            DataTable results = cDatabase.Instance.ExecutePreparedQueryWithResult(commandString, new Dictionary<string, object>());
+            DataTable results = Query.ExecuteWithResult(commandString, new Dictionary<string, object>());
 
             foreach(DataRow row in results.Rows)
             {
