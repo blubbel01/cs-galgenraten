@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Runtime.Serialization;
 using Database;
-using MySql.Data.MySqlClient;
 
 namespace Playground.Manager.Inventory
 {

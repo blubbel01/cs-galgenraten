@@ -99,7 +99,39 @@ namespace Playground.Manager.Inventory
             string commandString = "DELETE FROM inventories WHERE `inventories`.`id` = @id";
             Dictionary<string, object> parameters = new Dictionary<string, object>();
             parameters.Add("@id", id);
-            Query.Execute(commandString, parameters);
+            Query.ExecuteWithLastInsertedId(commandString, parameters);
+        }
+
+        public static int CreateInventory(Inventory inv)
+        {
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            parameters.Add("@title", inv.Title);
+            parameters.Add("@maxWeight", inv.MaxWeight);
+            long id = Query.ExecuteWithLastInsertedId(@"
+                    INSERT INTO `inventories`(`title`, `maxWeight`)
+                    VALUES(@title, @maxWeight)", parameters);
+            
+            // Erstelle Items des Inventars
+
+            for (var i = 0; i < inv.Items.Count; i++)
+            {
+                _createItemStack(id, i, inv.Items[i]);
+            }
+
+            // Erstelle Attribute
+                
+            foreach (var (inventoryAttribute, value) in inv.Attributes)
+            {
+                Dictionary<string, object> parameters1 = new Dictionary<string, object>();
+                parameters1.Add("@invId", id);
+                parameters1.Add("@attribute", (int)inventoryAttribute);
+                parameters1.Add("@value", value);
+                Query.Execute(@"
+                    INSERT INTO `inventory_attributes`(`inventory_id`, `attribute`, `value`)
+                    VALUES(@invId, @attribute, @value)", parameters1);
+            }
+
+            return Convert.ToInt32(id);
         }
 
         public static void SaveInventory(int id, Inventory inv)
@@ -210,38 +242,6 @@ namespace Playground.Manager.Inventory
                             INSERT INTO `inventory_attributes` (`inventory_id`, `attribute`, `value`)
                             VALUES (@invId, @attribute, @value)", parameters);
                     }
-                }
-            }
-            else
-            {
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                parameters.Add("@id", id);
-                parameters.Add("@title", inv.Title);
-                parameters.Add("@maxWeight", inv.MaxWeight);
-                Query.ExecuteWithResult(@"
-                    INSERT INTO `inventories`(`id`, `title`, `maxWeight`)
-                    VALUES(@id, @title, @maxWeight)", parameters);
-                
-                Thread.Sleep(50);
-                
-                // Erstelle Items des Inventars
-
-                for (var i = 0; i < inv.Items.Count; i++)
-                {
-                    _createItemStack(id, i, inv.Items[i]);
-                }
-
-                // Erstelle Attribute
-                
-                foreach (var (inventoryAttribute, value) in inv.Attributes)
-                {
-                    Dictionary<string, object> parameters1 = new Dictionary<string, object>();
-                    parameters1.Add("@invId", id);
-                    parameters1.Add("@attribute", (int)inventoryAttribute);
-                    parameters1.Add("@value", value);
-                    Query.Execute(@"
-                    INSERT INTO `inventory_attributes`(`inventory_id`, `attribute`, `value`)
-                    VALUES(@invId, @attribute, @value)", parameters1);
                 }
             }
         }

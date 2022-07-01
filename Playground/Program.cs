@@ -17,21 +17,16 @@ namespace Playground
         {
             MaterialObject.Init();
 
-            InventoryManager.DeleteInventory(1);
-            InventoryManager.DeleteInventory(2);
-            InventoryManager.DeleteInventory(3);
-
-            _testCreateItemNormal();
-            _testCreateItemMeta();
-            _testUpdateAmount();
-            
-            
-            _testCreateItemNormal();
-            _testCreateItemMeta();
-            _testUpdateAmount();
+            for (int i = 0; i < 20; i++)
+            {
+                _testCreateItemMeta();
+                _testCreateItemNormal();
+                _testUpdateAmount();
+                _testDeleteItem();
+            }
         }
 
-        private static void _testCreateItemNormal(int invId = 1)
+        private static void _testCreateItemNormal()
         {
             Console.WriteLine("[CHECK] Create Item Normal!");
             
@@ -39,7 +34,7 @@ namespace Playground
             ItemStack newItem = new ItemStack(Item.WEAPON_SMG, 12);
             inv.AddItem(newItem);
             
-            InventoryManager.SaveInventory(invId, inv);
+            int invId = InventoryManager.CreateInventory(inv);
             
             Inventory checkInf = InventoryManager.GetInventory(invId);
 
@@ -57,7 +52,7 @@ namespace Playground
             }
         }
 
-        private static void _testCreateItemMeta(int invId = 2)
+        private static void _testCreateItemMeta()
         {
             Console.WriteLine("[CHECK] Create Item Meta!");
             Inventory inv = new Inventory("Test", 10000);
@@ -65,7 +60,7 @@ namespace Playground
             newItem.Meta.DisplayName = "Nee Nam";
             newItem.Meta.AttributeModifiers[ItemAttribute.SSAJFG] = 15;
             inv.AddItem(newItem);
-            InventoryManager.SaveInventory(invId, inv);
+            int invId =  InventoryManager.CreateInventory(inv);
             
             
             Inventory checkInf = InventoryManager.GetInventory(invId);
@@ -84,7 +79,7 @@ namespace Playground
             }
         }
 
-        private static async void _testUpdateAmount(int invId = 3)
+        private static void _testUpdateAmount()
         {
             Console.WriteLine("[CHECK] Update Amount!");
             Inventory inv = new Inventory("Test", 10000);
@@ -92,7 +87,7 @@ namespace Playground
             newItem.Meta.DisplayName = "Nee Nam";
             newItem.Meta.AttributeModifiers[ItemAttribute.SSAJFG] = 15;
             inv.AddItem(newItem);
-            InventoryManager.SaveInventory(invId, inv);
+            int invId =  InventoryManager.CreateInventory(inv);
 
             inv = InventoryManager.GetInventory(invId);
             inv.RemoveItemAmount(inv.SlotsOfItem(Item.WEAPON_SMG)[0], 12);
@@ -112,6 +107,37 @@ namespace Playground
             else
             {
                 Console.WriteLine("[SUCCESS] Update Amount!");
+            }
+        }
+
+        private static void _testDeleteItem()
+        {
+            Console.WriteLine("[CHECK] Update Amount!");
+            Inventory inv = new Inventory("Test", 10000);
+            ItemStack newItem = new ItemStack(Item.WEAPON_SMG, 253);
+            newItem.Meta.DisplayName = "Nee Nam";
+            newItem.Meta.AttributeModifiers[ItemAttribute.SSAJFG] = 15;
+            inv.AddItem(newItem);
+            int invId =  InventoryManager.CreateInventory(inv);
+
+            inv = InventoryManager.GetInventory(invId);
+            inv.RemoveItemAmount(inv.SlotsOfItem(Item.WEAPON_SMG)[0], 253);
+            InventoryManager.SaveInventory(invId, inv);
+            
+            
+            Inventory checkInf = InventoryManager.GetInventory(invId);
+
+            if (!inv.Equals(checkInf))
+            {
+                Console.WriteLine("[ERROR] Delete Amount!");
+                string s1 = JsonConvert.SerializeObject(inv);
+                string s2 = JsonConvert.SerializeObject(checkInf);
+                Console.WriteLine(s1);
+                Console.WriteLine(s2);
+            }
+            else
+            {
+                Console.WriteLine("[SUCCESS] Delete Amount!");
             }
         }
 
