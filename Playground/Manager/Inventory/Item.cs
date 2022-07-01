@@ -11,6 +11,8 @@ namespace Playground.Manager.Inventory
         NULL = 0,
         TEST_MATERIAL = 1,
         WEAPON_SMG = 12,
+        
+        BACKPACK = 38, 
     }
 
     [DataContract]

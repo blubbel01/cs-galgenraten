@@ -184,12 +184,20 @@ namespace Playground.Manager.Inventory
         {
             get
             {
+                double toReturn = _maxWeight;
+                
                 if (Attributes.ContainsKey(InventoryAttribute.EXTRA_STORAGE))
                 {
-                    return _maxWeight + Attributes[InventoryAttribute.EXTRA_STORAGE];
+                    toReturn += Attributes[InventoryAttribute.EXTRA_STORAGE];
                 }
 
-                return _maxWeight;
+                int backpackSlot = SlotsOfItem(Item.BACKPACK)[0];
+                if (backpackSlot != -1)
+                {
+                    toReturn += 150;
+                }
+
+                return toReturn;
             }
             set => _maxWeight = value;
         }
