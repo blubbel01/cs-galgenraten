@@ -7,7 +7,7 @@ namespace Playground.Manager.Inventory
 {
     public enum InventoryAttribute
     {
-        GROUP_STORAGE
+        EXTRA_STORAGE
     }
 
     [DataContract]
@@ -182,7 +182,15 @@ namespace Playground.Manager.Inventory
 
         public double MaxWeight
         {
-            get => _maxWeight;
+            get
+            {
+                if (Attributes.ContainsKey(InventoryAttribute.EXTRA_STORAGE))
+                {
+                    return _maxWeight + Attributes[InventoryAttribute.EXTRA_STORAGE];
+                }
+
+                return _maxWeight;
+            }
             set => _maxWeight = value;
         }
 

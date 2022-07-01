@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Runtime.Serialization;
 using MySql.Data.MySqlClient;
 
@@ -30,26 +31,24 @@ namespace Playground.Manager.Inventory
         public static void Init()
         {
             string commandString = "SELECT * FROM items";
-            MySqlConnection con = DatabaseHandler.GetConnection();
-            MySqlCommand command = new MySqlCommand(commandString, con);
-            MySqlDataReader reader = command.ExecuteReader();
+            DataTable results = cDatabase.Instance.ExecutePreparedQueryWithResult(commandString, new Dictionary<string, object>());
 
-            while (reader.Read())
+            foreach(DataRow row in results.Rows)
             {
                 MaterialObject materialObject = new MaterialObject(
-                    (long)reader["id"],
-                    (string)reader["name"],
-                    reader["description"] == DBNull.Value ? null : (string)reader["description"],
-                    (double)reader["weight"],
-                    (short)reader["durability"],
-                    (bool)reader["legal"],
-                    (bool)reader["disabled"],
-                    (int)reader["heal"],
-                    (int)reader["food"],
-                    (int)reader["priceMin"],
-                    (int)reader["priceMax"],
-                    (bool)reader["allowTrade"],
-                    (bool)reader["sync"]
+                    (long)row["id"],
+                    (string)row["name"],
+                    row["description"] == DBNull.Value ? null : (string)row["description"],
+                    (double)row["weight"],
+                    (short)row["durability"],
+                    (bool)row["legal"],
+                    (bool)row["disabled"],
+                    (int)row["heal"],
+                    (int)row["food"],
+                    (int)row["priceMin"],
+                    (int)row["priceMax"],
+                    (bool)row["allowTrade"],
+                    (bool)row["sync"]
                 );
                 _items[(Item)materialObject.Id] = materialObject;
             }

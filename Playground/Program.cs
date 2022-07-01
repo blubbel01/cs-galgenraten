@@ -8,13 +8,13 @@ namespace Playground
     {
         static void Main(string[] args)
         {
-            MaterialObject.Init();
-
-            Example();
+            new cDatabaseManager();
+            cDatabaseManager.instance.onResourceStart();
         }
 
-        static void Example()
+        public static void Example()
         {
+            MaterialObject.Init();
             Console.WriteLine(JsonConvert.SerializeObject(InventoryManager.GetInventory(2)));
         }
 
