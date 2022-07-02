@@ -1,6 +1,5 @@
 using System;
 using System.Runtime.Serialization;
-using Newtonsoft.Json;
 using Playground.Manager.Inventory.Meta;
 
 namespace Playground.Manager.Inventory

@@ -17,7 +17,7 @@ namespace Playground
         {
             MaterialObject.Init();
 
-            for (int i = 0; i < 20; i++)
+            for (int i = 0; i < 1; i++)
             {
                 _testCreateItemMeta();
                 _testCreateItemNormal();
@@ -30,7 +30,7 @@ namespace Playground
         {
             Console.WriteLine("[CHECK] Create Item Normal!");
             
-            Inventory inv = new Inventory("Test", 10000);
+            Inventory inv = new Inventory("Test", InventoryType.NORMAL, 20);
             ItemStack newItem = new ItemStack(Item.WEAPON_SMG, 12);
             inv.AddItem(newItem);
             
@@ -55,8 +55,8 @@ namespace Playground
         private static void _testCreateItemMeta()
         {
             Console.WriteLine("[CHECK] Create Item Meta!");
-            Inventory inv = new Inventory("Test", 10000);
-            ItemStack newItem = new ItemStack(Item.WEAPON_SMG, 12);
+            Inventory inv = new Inventory("Test", InventoryType.NORMAL, 100);
+            ItemStack newItem = new ItemStack(Item.WEAPON_SMG, 5);
             newItem.Meta.DisplayName = "Nee Nam";
             newItem.Meta.AttributeModifiers[ItemAttribute.SSAJFG] = 15;
             inv.AddItem(newItem);
@@ -82,7 +82,7 @@ namespace Playground
         private static void _testUpdateAmount()
         {
             Console.WriteLine("[CHECK] Update Amount!");
-            Inventory inv = new Inventory("Test", 10000);
+            Inventory inv = new Inventory("Test", InventoryType.NORMAL, 50);
             ItemStack newItem = new ItemStack(Item.WEAPON_SMG, 253);
             newItem.Meta.DisplayName = "Nee Nam";
             newItem.Meta.AttributeModifiers[ItemAttribute.SSAJFG] = 15;
@@ -113,7 +113,7 @@ namespace Playground
         private static void _testDeleteItem()
         {
             Console.WriteLine("[CHECK] Update Amount!");
-            Inventory inv = new Inventory("Test", 10000);
+            Inventory inv = new Inventory("Test", InventoryType.NORMAL, 150);
             ItemStack newItem = new ItemStack(Item.WEAPON_SMG, 253);
             newItem.Meta.DisplayName = "Nee Nam";
             newItem.Meta.AttributeModifiers[ItemAttribute.SSAJFG] = 15;

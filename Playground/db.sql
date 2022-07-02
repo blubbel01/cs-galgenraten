@@ -2,6 +2,7 @@
 
 CREATE TABLE `inventories` (
                                `id` bigint(255) NOT NULL,
+                               `type` int(11) NOT NULL,
                                `title` varchar(255) NOT NULL,
                                `maxWeight` double NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

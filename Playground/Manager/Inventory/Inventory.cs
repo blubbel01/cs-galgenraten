@@ -1,14 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using Newtonsoft.Json;
 using Playground.Manager.Inventory.Meta;
 
 namespace Playground.Manager.Inventory
 {
-    public enum InventoryAttribute
+    public enum InventoryAttribute : int
     {
         EXTRA_STORAGE
+    }
+    
+    public enum InventoryType : int
+    {
+        NORMAL,
+        WALLET,
     }
 
     [DataContract]
@@ -20,20 +25,24 @@ namespace Playground.Manager.Inventory
 
         [DataMember(Name = "items")] private List<ItemStack> _items;
 
+        [DataMember(Name = "type")] private InventoryType _type;
+
         [DataMember(Name = "attributes")] private Dictionary<InventoryAttribute, double> _attributes;
 
-        public Inventory(string title, double maxWeight, List<ItemStack> items,
+        public Inventory(string title, InventoryType type, double maxWeight, List<ItemStack> items,
             Dictionary<InventoryAttribute, double> attributes)
         {
             _title = title;
+            _type = type;
             _maxWeight = maxWeight;
             _items = items;
             _attributes = attributes;
         }
 
-        public Inventory(string title, double maxWeight)
+        public Inventory(string title, InventoryType type, double maxWeight)
         {
             _title = title;
+            _type = type;
             _maxWeight = maxWeight;
             _items = new List<ItemStack>();
             _attributes = new Dictionary<InventoryAttribute, double>();
@@ -62,19 +71,8 @@ namespace Playground.Manager.Inventory
 
                 int index = _findItemStackIndex(curr);
 
-                double emptySpace = MaxWeight - CurrentWeight();
-                long transferAmount = (long)(Math.Round(curr.MaterialWeight() / emptySpace) > curr.Amount
-                    ? curr.Amount
-                    : Math.Round(curr.MaterialWeight() / emptySpace));
-
-                if (MaxWeight == 0 || forced)
-                {
-                    transferAmount = curr.Amount;
-                }
-
                 ItemStack toAdd = (ItemStack)curr.Clone();
-                toAdd.Amount = transferAmount;
-                curr.Amount -= transferAmount;
+                toAdd.Amount = curr.Amount;
 
                 if (index == -1)
                 {
@@ -211,6 +209,12 @@ namespace Playground.Manager.Inventory
             set => _title = value;
         }
 
+        public InventoryType Type
+        {
+            get => _type;
+            set => _type = value;
+        }
+
         public Dictionary<int, int> LegacyFormat()
         {
             Dictionary<int, int> legacyInventory = new Dictionary<int, int>();
@@ -233,6 +237,11 @@ namespace Playground.Manager.Inventory
             }
 
             if (MaxWeight != other.MaxWeight)
+            {
+                return false;
+            }
+
+            if (Type != other.Type)
             {
                 return false;
             }

@@ -3,9 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Threading;
 using Database;
-using Newtonsoft.Json;
 using Playground.Manager.Inventory.Meta;
 using Playground.Manager.Inventory.Meta.Attributes;
 
@@ -91,7 +89,7 @@ namespace Playground.Manager.Inventory
                 }
             }
 
-            return new Inventory(inv.Title, inv.MaxWeight, items.Values.ToList(), inv.Attributes);
+            return new Inventory(inv.Title, inv.Type, inv.MaxWeight, items.Values.ToList(), inv.Attributes);
         }
 
         public static void DeleteInventory(long id)
@@ -106,10 +104,11 @@ namespace Playground.Manager.Inventory
         {
             Dictionary<string, object> parameters = new Dictionary<string, object>();
             parameters.Add("@title", inv.Title);
+            parameters.Add("@type", inv.Type);
             parameters.Add("@maxWeight", inv.MaxWeight);
             long id = Query.ExecuteWithLastInsertedId(@"
-                    INSERT INTO `inventories`(`title`, `maxWeight`)
-                    VALUES(@title, @maxWeight)", parameters);
+                    INSERT INTO `inventories`(`title`, `type`, `maxWeight`)
+                    VALUES(@title, @type, @maxWeight)", parameters);
             
             // Erstelle Items des Inventars
 
@@ -146,6 +145,14 @@ namespace Playground.Manager.Inventory
                     parameters.Add("@id", id);
                     parameters.Add("@title", inv.Title);
                     Query.Execute("UPDATE inventories SET title = @title WHERE id = @id", parameters);
+                }
+                
+                if (!currentDbInventory.Type.Equals(inv.Type))
+                {
+                    Dictionary<string, object> parameters = new Dictionary<string, object>();
+                    parameters.Add("@id", id);
+                    parameters.Add("@type", (int) inv.Type);
+                    Query.Execute("UPDATE inventories SET type = @type WHERE id = @id", parameters);
                 }
 
                 if (currentDbInventory.MaxWeight != inv.MaxWeight)
@@ -261,6 +268,7 @@ namespace Playground.Manager.Inventory
 
             if (results.Rows.Count == 0) return null;
             string title = (string)results.Rows[0]["title"];
+            InventoryType type = (InventoryType)results.Rows[0]["type"];
             double maxWeight = (double)results.Rows[0]["maxWeight"];
 
             Dictionary<InventoryAttribute, double> attributes = new Dictionary<InventoryAttribute, double>();
@@ -273,7 +281,7 @@ namespace Playground.Manager.Inventory
                 }
             }
 
-            return new Inventory(title, maxWeight, new List<ItemStack>(), attributes);
+            return new Inventory(title, type, maxWeight, new List<ItemStack>(), attributes);
         }
 
         private static void _createItemStack(long inventoryId, long index, ItemStack itemStack)
